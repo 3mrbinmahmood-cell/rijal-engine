@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import sqlite3
 from .packet import make_packet, render_html
+from .name_inventory import common_bucket
 
 def compare(review_path, kind, group, left, right, base_path, extraction_path):
     if left==right:
@@ -19,6 +20,7 @@ def compare(review_path, kind, group, left, right, base_path, extraction_path):
     date_relation=('unavailable' if None in years else
                    'same_extracted_year' if years[0]==years[1] else
                    'different_extracted_years')
+    unit,start,end=common_bucket(years if None not in years else [])
     by_quote={}
     for statement in b['statements']:
         by_quote.setdefault(statement['quote'],[]).append(statement)
@@ -39,6 +41,7 @@ def compare(review_path, kind, group, left, right, base_path, extraction_path):
     packet['entries']=[a,b]
     return {'group':group,'kind':kind,'date_relation':date_relation,
             'extracted_death_years':years,
+            'date_placeholder':{'unit':unit,'start':start,'end':end},
             'shared_literal_statement_occurrences':len(shared),
             'shared_literal_statements':shared,
             'recorded_review':dict(zip(('decision','reason','reviewer','decided_at'),decision))
@@ -50,6 +53,11 @@ def render_comparison(result):
              +escape(result['date_relation'])+'</p><p>عدد العبارات المتطابقة حرفيًا: '
              +str(result['shared_literal_statement_occurrences'])
              +'</p><p>هذه المؤشرات لا تثبت اتحاد الهوية ولا اختلافها.</p></section>')
+    bucket=result['date_placeholder']
+    if bucket['unit'] is not None:
+        summary=summary.replace('</section>',
+            '<p>نطاق تقريبي للتصفح: '+str(bucket['start'])+'–'+str(bucket['end'])
+            +' هـ (الوحدة '+str(bucket['unit'])+')</p></section>')
     html=render_html(result['packet'])
     return html.replace('<h1>ملف مراجعة الهوية</h1>',
                         '<h1>مقارنة مدخلين</h1>'+summary,1)

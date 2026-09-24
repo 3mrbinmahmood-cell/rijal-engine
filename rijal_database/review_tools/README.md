@@ -65,6 +65,7 @@ years; entries without dates and differing names need later review methods.
 ```bash
 python -m rijal_database.review_tools.name_inventory build rijal_database/extraction.sqlite name_inventory.sqlite
 python -m rijal_database.review_tools.name_inventory triage name_inventory.sqlite rijal_database/rijal.sqlite rijal_database/extraction.sqlite
+python -m rijal_database.review_tools.name_inventory dates name_inventory.sqlite "بشر بن المفضل بن لاحق الرقاشي"
 python -m rijal_database.review_tools.name_inventory list name_inventory.sqlite --limit 10
 python -m rijal_database.review_tools.name_inventory inspect name_inventory.sqlite rijal_database/rijal.sqlite rijal_database/extraction.sqlite "ابراهيم بن ابي موسي الاشعري"
 python -m rijal_database.review_tools.name_inventory decide name_inventory.sqlite ENTRY_A ENTRY_B uncertain --reason "Compare teachers and dates" --reviewer "Omar"
@@ -85,3 +86,12 @@ with at least two dated entries agreeing**, **1,946 with one dated entry**, and
 historical reports about one person; agreement can occur between homonyms.
 These flags only order the review list. The inspected source quotations must
 be read before recording a pairwise decision.
+
+Conflicting extracted years remain separate in `date_evidence` with their
+original quotation and source page. `date_grouping` adds the smallest shared
+numeric placeholder: exact year (unit 1), 10-year range, 100-year range, then
+1,000-year range. For example **186 and 187 AH → 180–189 AH**, while both
+186 and 187 remain visible. If years straddle a 1,000-year boundary there is
+no shared placeholder in these four levels. Undated or ambiguous textual
+reports remain quoted with a null numeric year. These are decimal ranges,
+not named Hijri centuries, and they do not settle identity or date accuracy.

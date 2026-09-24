@@ -40,6 +40,16 @@ CREATE TABLE IF NOT EXISTS group_triage(
  dated_entries INTEGER NOT NULL,distinct_years INTEGER NOT NULL,
  status TEXT NOT NULL CHECK(status IN
  ('conflicting_dates','matching_dates','one_date','no_dates')));
+CREATE TABLE IF NOT EXISTS date_evidence(
+ entry_id TEXT PRIMARY KEY REFERENCES name_members(entry_id),
+ name_key TEXT NOT NULL REFERENCES name_groups(name_key),
+ death_year INTEGER,evidence_quote TEXT,evidence_page_id TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS date_evidence_group ON date_evidence(name_key);
+CREATE TABLE IF NOT EXISTS date_grouping(
+ name_key TEXT PRIMARY KEY REFERENCES name_groups(name_key),
+ years_json TEXT NOT NULL,bucket_unit INTEGER,
+ bucket_start INTEGER,bucket_end INTEGER,
+ CHECK(bucket_unit IN (1,10,100,1000) OR bucket_unit IS NULL));
 """
 
 GROUP_SQL = """
@@ -128,6 +138,18 @@ def inspect(db, base_path, extraction_path, name_key):
             members.append((entry_id,name,*citation))
     return inspect_entries(members,base_path,extraction_path)
 
+def common_bucket(years):
+    """Smallest decimal range shared by all distinct usable Hijri years."""
+    years=sorted(set(years))
+    if not years:
+        return None,None,None
+    for unit in (1,10,100,1000):
+        starts={year//unit*unit for year in years}
+        if len(starts)==1:
+            start=starts.pop()
+            return unit,start,start+unit-1
+    return None,None,None
+
 def triage(db, base_path, extraction_path):
     base_manifest=json.loads((Path(base_path).parent/'data'/'PAYLOAD.json').read_text())
     extraction_manifest=json.loads(
@@ -154,11 +176,33 @@ def triage(db, base_path, extraction_path):
                 dated_entries=excluded.dated_entries,
                 distinct_years=excluded.distinct_years,
                 status=excluded.status""")
+            db.execute("""INSERT INTO date_evidence(
+                entry_id,name_key,death_year,evidence_quote,evidence_page_id)
+                SELECT m.entry_id,m.name_key,r.death_year,r.evidence_quote,r.evidence_page_id
+                FROM name_members m JOIN v1.chronology_records r ON r.entry_id=m.entry_id
+                ON CONFLICT(entry_id) DO UPDATE SET
+                death_year=excluded.death_year,
+                evidence_quote=excluded.evidence_quote,
+                evidence_page_id=excluded.evidence_page_id""")
+            grouped={}
+            for key,year in db.execute(
+                    'SELECT name_key,death_year FROM date_evidence WHERE death_year IS NOT NULL'):
+                grouped.setdefault(key,set()).add(year)
+            keys=[r[0] for r in db.execute('SELECT name_key FROM name_groups')]
+            db.executemany("""INSERT INTO date_grouping(
+                name_key,years_json,bucket_unit,bucket_start,bucket_end)
+                VALUES (?,?,?,?,?) ON CONFLICT(name_key) DO UPDATE SET
+                years_json=excluded.years_json,bucket_unit=excluded.bucket_unit,
+                bucket_start=excluded.bucket_start,bucket_end=excluded.bucket_end""",
+                [(key,json.dumps(sorted(grouped.get(key,[]))),*common_bucket(grouped.get(key,[])))
+                 for key in keys])
             db.execute("INSERT OR IGNORE INTO methods VALUES ('base_sha256',?)",
                        (base_manifest['database_sha256'],))
             if db.execute('SELECT count(*) FROM group_triage').fetchone()[0] != db.execute(
                     'SELECT count(*) FROM name_groups').fetchone()[0]:
                 raise ValueError('Triage did not cover every name group')
+            if db.execute('SELECT count(*) FROM date_grouping').fetchone()[0] != len(keys):
+                raise ValueError('Date grouping did not cover every name group')
         return dict(db.execute(
             'SELECT status,count(*) FROM group_triage GROUP BY status').fetchall())
     finally:
@@ -173,6 +217,7 @@ def main():
     p.add_argument('v1_1');p.add_argument('name_key')
     p=commands.add_parser('triage');p.add_argument('inventory_database');p.add_argument('v1')
     p.add_argument('v1_1')
+    p=commands.add_parser('dates');p.add_argument('inventory_database');p.add_argument('name_key')
     p=commands.add_parser('decide');p.add_argument('inventory_database')
     p.add_argument('entry_a');p.add_argument('entry_b')
     p.add_argument('decision',choices=('same','different','uncertain'))
@@ -186,8 +231,10 @@ def main():
             db.executescript(SCHEMA)
             if args.command=='list':
                 result=db.execute("""SELECT g.name_key,g.entries,g.books,
-                                    COALESCE(t.status,'untriaged')
+                                    COALESCE(t.status,'untriaged'),
+                                    d.years_json,d.bucket_unit,d.bucket_start,d.bucket_end
                                     FROM name_groups g LEFT JOIN group_triage t USING(name_key)
+                                    LEFT JOIN date_grouping d USING(name_key)
                                     ORDER BY CASE t.status
                                       WHEN 'conflicting_dates' THEN 0
                                       WHEN 'matching_dates' THEN 1
@@ -198,6 +245,20 @@ def main():
                 result=inspect(db,args.v1,args.v1_1,args.name_key)
             elif args.command=='triage':
                 result=triage(db,args.v1,args.v1_1)
+            elif args.command=='dates':
+                group=db.execute('SELECT years_json,bucket_unit,bucket_start,bucket_end '
+                                 'FROM date_grouping WHERE name_key=?',(args.name_key,)).fetchone()
+                if not group:
+                    raise ValueError('Unknown or untriaged name group')
+                quotes=db.execute('SELECT entry_id,death_year,evidence_quote,evidence_page_id '
+                                  'FROM date_evidence WHERE name_key=? ORDER BY entry_id',
+                                  (args.name_key,)).fetchall()
+                result={'name_key':args.name_key,'years':json.loads(group[0]),
+                        'bucket_unit':group[1],'bucket_start':group[2],
+                        'bucket_end':group[3],
+                        'source_evidence':[dict(zip(
+                            ('entry_id','extracted_year','exact_quote','page_id'),r))
+                            for r in quotes]}
             else:
                 decide(db,args.entry_a,args.entry_b,args.decision,args.reason,args.reviewer)
                 result={'recorded':True}

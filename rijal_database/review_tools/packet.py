@@ -54,7 +54,7 @@ def make_packet(review_path, kind, group_key, base_path, extraction_path):
                 evidence_end,evidence_quote FROM chronology_records WHERE entry_id=?''',
                 (entry_id,)).fetchone()
             death=None
-            if record and record[0] is not None and record[4]:
+            if record and record[4]:
                 year,pid,start,end,quote=record
                 source,citation=page(pid)
                 if start is not None and end is not None and source[start:end]!=quote:

@@ -4,10 +4,17 @@ import unittest
 from pathlib import Path
 from rijal_database.review_tools.queue import connect, decide
 from rijal_database.review_tools.name_inventory import (
-    SCHEMA as NAME_SCHEMA, decide as decide_name, triage)
+    SCHEMA as NAME_SCHEMA, decide as decide_name, triage, common_bucket)
 import json
 
 class ReviewTests(unittest.TestCase):
+    def test_nearest_common_numeric_date_bucket(self):
+        self.assertEqual(common_bucket([70,70]),(1,70,70))
+        self.assertEqual(common_bucket([186,187]),(10,180,189))
+        self.assertEqual(common_bucket([165,195]),(100,100,199))
+        self.assertEqual(common_bucket([188,207]),(1000,0,999))
+        self.assertEqual(common_bucket([999,1000]),(None,None,None))
+        self.assertEqual(common_bucket([]),(None,None,None))
     def test_pairwise_decision_history_and_group_guard(self):
         with tempfile.TemporaryDirectory() as tmp:
             with connect(Path(tmp)/'review.sqlite') as db:
@@ -53,9 +60,10 @@ class ReviewTests(unittest.TestCase):
                 json.dumps({'base_sha256':'base','database_sha256':'extract'}))
             base=root/'v1.sqlite'
             with sqlite3.connect(base) as source:
-                source.execute('CREATE TABLE chronology_records(entry_id TEXT PRIMARY KEY,death_year INTEGER)')
-                source.executemany('INSERT INTO chronology_records VALUES (?,?)',
-                                   [('a',100),('b',101),('c',100),('d',100)])
+                source.execute('CREATE TABLE chronology_records(entry_id TEXT PRIMARY KEY,death_year INTEGER,evidence_quote TEXT,evidence_page_id TEXT)')
+                source.executemany('INSERT INTO chronology_records VALUES (?,?,?,?)',
+                                   [(entry,year,str(year),'page') for entry,year in
+                                    [('a',100),('b',101),('c',100),('d',100)]])
             with sqlite3.connect(root/'review.sqlite',uri=True) as db:
                 db.executescript(NAME_SCHEMA)
                 db.execute("INSERT INTO methods VALUES ('extraction_sha256','extract')")
@@ -67,6 +75,12 @@ class ReviewTests(unittest.TestCase):
                                (entry,key,key,'page','book','source','biography_candidate',0))
                 result=triage(db,base,root/'extraction.sqlite')
                 self.assertEqual(result,{'conflicting_dates':1,'matching_dates':1,'no_dates':1})
+                self.assertEqual(db.execute(
+                    "SELECT years_json,bucket_unit,bucket_start,bucket_end "
+                    "FROM date_grouping WHERE name_key='conflict'").fetchone(),
+                    ('[100, 101]',10,100,109))
+                self.assertEqual(db.execute(
+                    "SELECT count(*) FROM date_evidence WHERE name_key='conflict'").fetchone()[0],2)
                 self.assertEqual(db.execute('SELECT count(*) FROM pair_decisions').fetchone()[0],0)
 
 if __name__=='__main__':
