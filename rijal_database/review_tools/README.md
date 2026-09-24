@@ -154,3 +154,14 @@ decision. It assigns no reviewed person ID and makes no merge. The exact-name
 inventory covers 74,081 biography entries; missing shared text is not a
 different-person decision. Teachers, students, and regions can be incomplete
 or vary between books, so nonoverlapping lists alone cannot split identities.
+
+Run `python -m rijal_database.review_tools.provisional_identity
+name_inventory.sqlite candidates.sqlite provisional.sqlite` to materialize two
+reversible views. `name_buckets` groups all 74,081 entries by the existing
+normalized name key for browsing; **a bucket is not a person**. The separate
+`provisional_groups` view joins pairs with at least two shared long verbatim
+statements, excluding explicit `different` or `uncertain` reviews and failing
+if a transitive component contradicts a reviewed `different` decision. Each
+source entry remains present, and no reviewed person ID is minted. Preserve
+the reviewed registry for final identity and treat this view as an accelerated
+starting point for finding duplicates.
