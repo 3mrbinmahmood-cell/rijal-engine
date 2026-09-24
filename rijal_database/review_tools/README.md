@@ -221,3 +221,11 @@ kunya case forms (`أبو/أبي/أبا`), select hamza/letter variants, `ة/ه`
 keeps both the verbatim-statement and teacher/student overlap queues. A
 variant family or shared relationship is a clue, **not** a person merge; the
 heuristic can still pick up incidental names in a biography.
+
+Run `python -m rijal_database.review_tools.variant_provisional_links
+variants.sqlite full_name_index.sqlite variant_links.sqlite` for a reversible
+cross-spelling view. It links only biography candidates supported by either
+two long literal statements or overlap in both teacher and student lists with
+at least three shared names. It retains each entry's original `name_key` and
+does not mint a reviewed person ID. The relationship parser is heuristic, so
+these clusters remain provisional until source review.
