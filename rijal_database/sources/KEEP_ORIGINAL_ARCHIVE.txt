@@ -1,0 +1,5 @@
+Keep your original Rijaal database data raw.zip unchanged.
+To enable original HTML downloads, copy that ZIP into this folder.
+The complete extracted texts, citations and indexed search work without it.
+The source archive is already supplied separately; it is not duplicated inside this database package.
+See reports/SOURCE_MANIFEST.json for the exact archive/file SHA-256 checksums.

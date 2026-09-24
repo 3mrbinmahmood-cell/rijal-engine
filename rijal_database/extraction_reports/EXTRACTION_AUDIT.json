@@ -1,0 +1,65 @@
+{
+  "version": "1.1-extraction",
+  "base_sha256": "0153d70668b6b47b7b177c8420e18b6510c2f5c3ac924b017590f75c62471b64",
+  "summary": {
+    "pages_scanned": 677154,
+    "biographies": 664308,
+    "statements": 1937255,
+    "segments": 1025806,
+    "continuation_segments": 361498,
+    "distinct_statement_texts": 1751146,
+    "biography_classifications": {
+      "biography_candidate": 604643,
+      "catalogue_or_index_candidate": 2,
+      "cross_reference_candidate": 10485,
+      "short_index_candidate": 49178
+    },
+    "statement_origins": {
+      "footnote": 201211,
+      "main_text": 1736044
+    },
+    "statement_types": {
+      "alias": 294054,
+      "assessment": 449186,
+      "birth": 133146,
+      "cross_reference": 92063,
+      "death": 445907,
+      "family": 341749,
+      "students": 318361,
+      "teachers": 289206
+    },
+    "subject_statuses": {
+      "editorial_context_unresolved": 201211,
+      "possible_report_or_chain_assessment": 52613,
+      "unassigned_source_context": 653100,
+      "unresolved_in_biography_context": 1030331
+    },
+    "boundary_statuses": {
+      "next_recorded_heading": 663640,
+      "source_file_end_unresolved": 668
+    },
+    "biographies_with_continuations": 238921,
+    "biographies_with_statements": 460930,
+    "statements_with_attribution_labels": 320115,
+    "verified_people": null,
+    "identity_merges_performed": 0,
+    "original_source_text_changed": false
+  },
+  "offset_audit": {
+    "quote_mismatches": 0,
+    "trigger_mismatches": 0,
+    "attribution_mismatches": 0,
+    "bad_segments": 0,
+    "wrong_biography_owner": 0,
+    "headings_crossed": 0,
+    "footnote_layer_errors": 0,
+    "pending_boundaries": 0,
+    "missing_candidates": 0
+  },
+  "integrity_check": [
+    "ok"
+  ],
+  "fts_integrity": "passed",
+  "elapsed_seconds": 1965.7,
+  "method": "All V1 candidate names retained. Every recorded heading closes the preceding candidate, including non-biographical headings. Continuation stays within one HTML source file. Literal trigger-based excerpts include separate footnotes and unassigned contexts. Labels and attribution strings are unverified; no person merges, adjudicated grades, resolved teacher/student edges, or chronology changes."
+}

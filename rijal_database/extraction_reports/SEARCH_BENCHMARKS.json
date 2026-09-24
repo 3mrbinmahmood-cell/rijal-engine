@@ -1,0 +1,20 @@
+[
+  {
+    "scope": "biographies",
+    "query": "أسامة بن عمير",
+    "returned": 20,
+    "milliseconds": 11.3
+  },
+  {
+    "scope": "statements",
+    "query": "روى عنه ولده وحده",
+    "returned": 10,
+    "milliseconds": 11.3
+  },
+  {
+    "scope": "statements",
+    "query": "قال أبو حاتم",
+    "returned": 20,
+    "milliseconds": 382.3
+  }
+]

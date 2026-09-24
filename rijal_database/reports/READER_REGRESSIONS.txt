@@ -1,0 +1,5 @@
+PASS neighbor evidence resolves شعبة/قتادة/أبو المليح and أبيه → أسامة بن عمير inside one card; unanchored and duplicate pronouns have no separate card
+PASS migration, repeatability, Arabic normalization, source page ID
+PASS per-book resume at page and reading spot
+PASS pen and typed note index with stable page references and legacy fallback
+PASS reader adapter: asynchronous API contract, query encoding, in-reader modal, repeated mount, no access to annotation storage

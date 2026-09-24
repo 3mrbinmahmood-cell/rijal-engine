@@ -1,0 +1,597 @@
+{
+  "version": "1.0.0",
+  "summary": {
+    "books": 578,
+    "source_files": 1622,
+    "pages": 677154,
+    "page_texts": 668042,
+    "entries": 969027,
+    "mentions": 420082,
+    "passages": 2562071,
+    "passage_locations": 2574375,
+    "persons": 0,
+    "assertions": 0,
+    "candidate_biography_headings": 831531,
+    "other_source_headings": 137496,
+    "raw_html_bytes": 1748502194,
+    "unique_page_text_bytes": 1429144807,
+    "duplicate_file_groups": 0,
+    "duplicate_page_groups": 7465,
+    "page_storage_reuses": 9112,
+    "exact_paragraph_storage_reuses": 12304,
+    "normalized_paragraph_variant_groups": 18164,
+    "unlabelled_pages": 1885,
+    "failed_files": 0,
+    "fallback_files": 0
+  },
+  "integrity_check": [
+    "ok"
+  ],
+  "foreign_key_violations": [],
+  "offset_violations": {
+    "source_page_counts": 0,
+    "page_marker_counts": 0,
+    "entry_offsets": 0,
+    "mention_offsets": 0,
+    "span_offsets": 0
+  },
+  "fts_integrity": "passed",
+  "source_checksums_verified": 1622,
+  "page_reconstruction_samples": [
+    {
+      "zip_path": "Rijaal database data raw/أسماء من اتفق البخاري ومسلم تصحيح الرواية عنه من الصحابة ومن انفرد كل واحد بإخراج حديثه.htm",
+      "ordinal": 0,
+      "page_id": "2da9c73065bd806e53ff75524ebfa104ca2ca3218161a248bed3218a8b74d6b0",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/أسماء من اتفق البخاري ومسلم تصحيح الرواية عنه من الصحابة ومن انفرد كل واحد بإخراج حديثه.htm",
+      "ordinal": 11,
+      "page_id": "0f8ff46ac71a4349f0f229002079f058224cbab6224ad24052ee904027d7d58a",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/أسماء من اتفق البخاري ومسلم تصحيح الرواية عنه من الصحابة ومن انفرد كل واحد بإخراج حديثه.htm",
+      "ordinal": 22,
+      "page_id": "f42ed3115b9ca9d950564a62611d472e710e95d7a41160cf2caa84320010fb0a",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/أعمار الأعيان/الكتاب.htm",
+      "ordinal": 0,
+      "page_id": "7256fd717aedb83a42c911fee1d7042b77be21c737abd58500e75320d9699a60",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/أعمار الأعيان/الكتاب.htm",
+      "ordinal": 78,
+      "page_id": "2f6ab7fc8f71466ddc5d423b94c0e83c48f89dede15a88adfca452fea93ddaa3",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/أعمار الأعيان/الكتاب.htm",
+      "ordinal": 156,
+      "page_id": "25d1f974b4f303ba3c5be3c3ad4091a04edeb1de8845cfaa7466b9f3c44b3d81",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/إكمال تهذيب الكمال - ط الفاروق/011.htm",
+      "ordinal": 0,
+      "page_id": "fa608bca8f8bf0495db0e7bf815a2bb02dc9464a4a5a6b01e6f2dd528a13c2c6",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/إكمال تهذيب الكمال - ط الفاروق/011.htm",
+      "ordinal": 193,
+      "page_id": "7798179fe1d110e65e0b0285156e993aba0dc02b252e5f466ca893cf62dc8173",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/إكمال تهذيب الكمال - ط الفاروق/011.htm",
+      "ordinal": 386,
+      "page_id": "5a10ea5f202c6ce6d92070f2a4732cf485867aec8a0b82a7971583b5dbe7a1b0",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/اتحاف السائل بما لفاطمة من المناقب والفضائل.htm",
+      "ordinal": 0,
+      "page_id": "656f34c38fa33aed42358197333f1b5724f3e8668b56b2237520c070beb13867",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/اتحاف السائل بما لفاطمة من المناقب والفضائل.htm",
+      "ordinal": 40,
+      "page_id": "724c44baa48ab1dbe1e96067467d9bbadba32c85e4cfd383368d72fbf2b47b06",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/اتحاف السائل بما لفاطمة من المناقب والفضائل.htm",
+      "ordinal": 80,
+      "page_id": "c30b6bb61d8895eb959db27e424e2cf9a9f2379a4426455a2d763b9f7ffb2b81",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/الإكمال - لابن ماكولا - ت المعلمي/المقدمة.htm",
+      "ordinal": 0,
+      "page_id": "4cedda7bbf0c6ab614c3628c4ff73f90b48f9e3a60d4a5d340d56db93a5329a2",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/الإكمال - لابن ماكولا - ت المعلمي/المقدمة.htm",
+      "ordinal": 31,
+      "page_id": "6fe9a5517c85e88eb96fa88749c18909cb54b6d74d7a50a340fbab80c2ce42c3",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/الإكمال - لابن ماكولا - ت المعلمي/المقدمة.htm",
+      "ordinal": 61,
+      "page_id": "036857dde70ef320ca63717739dd259ff6ca8d194c9ff3153973db63192f1b2d",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/الروض الباسم في حوادث العمر والتراجم/002.htm",
+      "ordinal": 0,
+      "page_id": "5908a39aaae5ef91fe80a42748bc9dc6a74004714171b42ad73301993f7e5f7c",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/الروض الباسم في حوادث العمر والتراجم/002.htm",
+      "ordinal": 186,
+      "page_id": "62c9120bf585b59123667ad05098aca080a4c0a5593d2f89188d8966b5c8c7ce",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/الروض الباسم في حوادث العمر والتراجم/002.htm",
+      "ordinal": 372,
+      "page_id": "7cf0a34f3b7306a8cd8c6fc636b41669d93ed39d3a6bc52f7b937cc146599a8f",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/الرياض النضرة في مناقب العشرة/004.htm",
+      "ordinal": 0,
+      "page_id": "7085a486d5facd5508269ff90e83a113110717404064f2c5830b25df24aeea03",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/الرياض النضرة في مناقب العشرة/004.htm",
+      "ordinal": 78,
+      "page_id": "597bc70a577f5946b88bbd9154c46238d408c8a532418f59bd17af7d8364e5d8",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/الرياض النضرة في مناقب العشرة/004.htm",
+      "ordinal": 155,
+      "page_id": "a90f6e5472fba095814300041870732a1a242f661ff6ef40c037f34ed771dafb",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/الصاحب والخليفة أبو بكر الصديق/008.htm",
+      "ordinal": 0,
+      "page_id": "3568721755fd5ab8daffe67d0df5c175f7d7e1b0f3a7fa3335de27b679e9bbf1",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/الصاحب والخليفة أبو بكر الصديق/008.htm",
+      "ordinal": 5,
+      "page_id": "5850b318427dcc0f0deffca1ca4daede6e6f70639ec272564fab443d1b3ba229",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/الصاحب والخليفة أبو بكر الصديق/008.htm",
+      "ordinal": 10,
+      "page_id": "0f12e96e68ddf9c840255ee38831b6afd700a06e34228038967b7ed1a698a8bd",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/الطبقات الكبرى - ط العلمية/008.htm",
+      "ordinal": 0,
+      "page_id": "17e634dc7287592b50867d7452e1689bad445bf80e464678c9a3cee70a613be1",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/الطبقات الكبرى - ط العلمية/008.htm",
+      "ordinal": 179,
+      "page_id": "77310a5020843d103c132b47fee865928fcfd221b9d65e28ec0ff880b9740831",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/الطبقات الكبرى - ط العلمية/008.htm",
+      "ordinal": 357,
+      "page_id": "cf120e47adaf6b84b26fedb23aef79273805a3d5c348bebc0f4bad5f3a4180a9",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/الطبقات الكبرى - ط دار صادر/002.htm",
+      "ordinal": 0,
+      "page_id": "123abf891ec6cbd5ec8bf054ab2ca02fcc712899c71a55194f6ec4227197776e",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/الطبقات الكبرى - ط دار صادر/002.htm",
+      "ordinal": 193,
+      "page_id": "ba95126e4aec960d4df199360ab766c526d36f97d78cc53cfcf64f06aff255a1",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/الطبقات الكبرى - ط دار صادر/002.htm",
+      "ordinal": 385,
+      "page_id": "08fb1a1a97474619797cf6f7c6ada6cd2714c9972d33f8e76434a317b6b013e5",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/المردفات من قريش - ضمن نوادر المخطوطات.htm",
+      "ordinal": 0,
+      "page_id": "b9a8f34d57fcad12c41b8c0948a519430fb40350e90c9d890dff0757b715034c",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/المردفات من قريش - ضمن نوادر المخطوطات.htm",
+      "ordinal": 12,
+      "page_id": "eed26f0700cb3bc57cde6766156e2bc4df280f3841fdfd313af2bf6740e253ae",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/المردفات من قريش - ضمن نوادر المخطوطات.htm",
+      "ordinal": 24,
+      "page_id": "7e1589d62bd92624071afe7f2e3f5a735b1d18a132e31b925a311d09e281688d",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/الوافي بالوفيات/029.htm",
+      "ordinal": 0,
+      "page_id": "76a9cf23225cd4f867871dbd26e0ad9875faa8cb7243eba3269e462f7b81216c",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/الوافي بالوفيات/029.htm",
+      "ordinal": 93,
+      "page_id": "ba7d8776a24b0c388b2e9d4feaa9e542f026078150cd2b48b54ca264c4bd2b1a",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/الوافي بالوفيات/029.htm",
+      "ordinal": 186,
+      "page_id": "b7dfa043f29e60bee7fbcf9869b5ee5d912c288d992ae535b6b08be26768725f",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/بغية الملتمس في تاريخ رجال أهل الأندلس.htm",
+      "ordinal": 0,
+      "page_id": "e79ecc716d9ea81e38a69a911d05d61b7744e85272f9cd78ee55f08aebbe8e50",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/بغية الملتمس في تاريخ رجال أهل الأندلس.htm",
+      "ordinal": 274,
+      "page_id": "b506b88fecb88bb0297b55cbefd883508d9ac88f039789be9e1f8ceafc6a8ca1",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/بغية الملتمس في تاريخ رجال أهل الأندلس.htm",
+      "ordinal": 547,
+      "page_id": "f894af7bc630f7c17c0dcc021759822071f32dd8649c7b745be2bff2662dd570",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تاريخ بغداد - ط العلمية/001.htm",
+      "ordinal": 0,
+      "page_id": "7a72457c460808932a8b9beb3405301ae8494da5d1e0003456bdf56e3fc020f9",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تاريخ بغداد - ط العلمية/001.htm",
+      "ordinal": 215,
+      "page_id": "389215ef924e8b1f000ffa48e36df49620292ce55a7605002759addbea29e1af",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تاريخ بغداد - ط العلمية/001.htm",
+      "ordinal": 429,
+      "page_id": "54714dd016f94a97c56288afbaf556fdba18603f7a77ca69a8360d8f095b8192",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تتمة الأعلام - محمد خير رمضان/002.htm",
+      "ordinal": 0,
+      "page_id": "a468696aec1704a6bd03fd8ef7b056e23731696b198fb1ddc692ee49bca3b124",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تتمة الأعلام - محمد خير رمضان/002.htm",
+      "ordinal": 158,
+      "page_id": "ecddd8054fccf9da5ee9970dfe7ff47db75babaa23a44c8878fb4d81894571cf",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تتمة الأعلام - محمد خير رمضان/002.htm",
+      "ordinal": 316,
+      "page_id": "bf633ec7c14b6836af02918b05345305e1604bef9ad2f43b0c86130fce6c78cf",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تذهيب تهذيب الكمال في أسماء الرجال/002.htm",
+      "ordinal": 0,
+      "page_id": "bc22f8f2cfb5cba51b686ee66e4aea796b70023eb3f705204f345be013bfae96",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تذهيب تهذيب الكمال في أسماء الرجال/002.htm",
+      "ordinal": 216,
+      "page_id": "a3bbb3b92b2aac7149817afd4cb3fb2bda13c2dd0530fe0412d3016a0907456a",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تذهيب تهذيب الكمال في أسماء الرجال/002.htm",
+      "ordinal": 431,
+      "page_id": "5886581b01f3be523ded72168f7dc4b5849197549f6162f24a53fd842f0a7a22",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تقريب التهذيب.htm",
+      "ordinal": 0,
+      "page_id": "b2078fc17031dd306ac149a1d166bfbcac24478a8b983596ccc773245d301c97",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تقريب التهذيب.htm",
+      "ordinal": 344,
+      "page_id": "5e43c8be5c78d400d9c678aec4535291b13d6ccf60fb3ac6374d0c4f593884e3",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تقريب التهذيب.htm",
+      "ordinal": 688,
+      "page_id": "a745c28ad953f49d131bed13f46a74b00f826f896f3998e17e0b2bc089617042",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تهذيب التهذيب - ط الرسالة/001.htm",
+      "ordinal": 0,
+      "page_id": "6b8fe3003219d7c8ab2e3d885e62617a5fdf60bc905526ee438122a387333aca",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تهذيب التهذيب - ط الرسالة/001.htm",
+      "ordinal": 347,
+      "page_id": "d05537f3ddbe1574e4015bf72ce203f5683f0ce8d3bfb272c42d9aa6ab3c6f6d",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تهذيب التهذيب - ط الرسالة/001.htm",
+      "ordinal": 694,
+      "page_id": "2b96d0793ba702fd2d46acd449cf8ace57347b027044204820b752f7efeb49e7",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تهذيب التهذيب - ط دبي/010.htm",
+      "ordinal": 0,
+      "page_id": "2c87da2a656ce31bfb64f5a275a8c61a159f841a5e717a8a657989189d4c6001",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تهذيب التهذيب - ط دبي/010.htm",
+      "ordinal": 399,
+      "page_id": "fde8fb3ad72eddd880e36a117a7cb74c7a8de1d397f58701905530dfd746f0ca",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تهذيب التهذيب - ط دبي/010.htm",
+      "ordinal": 797,
+      "page_id": "f951c69ba26ee06734f66a86e0f634b30910af7cce2e8e00639c4db30877585d",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تهذيب الكمال في أسماء الرجال/002.htm",
+      "ordinal": 0,
+      "page_id": "78fba906bdec40e57815f63a86ed4e1e6f7cde9d5f486d1b9533d997a8004b6f",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تهذيب الكمال في أسماء الرجال/002.htm",
+      "ordinal": 267,
+      "page_id": "08f6e75944da503386cf191e58da916d0bd22ccbf5c399c6a7289f6cf2397376",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تهذيب الكمال في أسماء الرجال/002.htm",
+      "ordinal": 533,
+      "page_id": "0c30d04961ad77b622a8f7663e84446eae546601c217b4ce3cb56988dcb848b7",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تهذيب الكمال في أسماء الرجال/011.htm",
+      "ordinal": 0,
+      "page_id": "1599706d97373381e087e8cc297d69698cd824c95233bfe053ab201e446f6132",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تهذيب الكمال في أسماء الرجال/011.htm",
+      "ordinal": 227,
+      "page_id": "6cb22b052b9594cc8f0f404aa8f060cb85be9e38f16a79c5814a4ccd2f7774cf",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/تهذيب الكمال في أسماء الرجال/011.htm",
+      "ordinal": 453,
+      "page_id": "580043588d1171b7119b0f570ea4f0c411650577ecdd5f009a428e36b4a526a6",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/جمهرة تراجم الفقهاء المالكية/001.htm",
+      "ordinal": 0,
+      "page_id": "4a1ef8a51dd5740eb964a51476bb5acbe267ca07e3f33115403fbece51be9200",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/جمهرة تراجم الفقهاء المالكية/001.htm",
+      "ordinal": 273,
+      "page_id": "6e9b4071a4e11cabdeaa4c37379a2fc6d1005f07a79149f550e652fbf8e345ca",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/جمهرة تراجم الفقهاء المالكية/001.htm",
+      "ordinal": 546,
+      "page_id": "71172b15b355de556c47bc5eb8ace2e45f2c6bdacba50576ee3d7f9b20a6d8be",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/خصائص التفكير الفقهي عند الشيخ محمد بن عبد الوهاب (مطبوع ضمن بحوث ندوة دعوة الشيخ محمد بن عبد الوهاب، الجزء الأول).htm",
+      "ordinal": 0,
+      "page_id": "4ebd971541554b1b0da4791bbdad9ac748dbbeabe59411d750e270c7d57992d4",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/خصائص التفكير الفقهي عند الشيخ محمد بن عبد الوهاب (مطبوع ضمن بحوث ندوة دعوة الشيخ محمد بن عبد الوهاب، الجزء الأول).htm",
+      "ordinal": 19,
+      "page_id": "02f6623eede7e16d4543df0b0b9ea2bcc24e0bf4b373150f591d00912d80514e",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/خصائص التفكير الفقهي عند الشيخ محمد بن عبد الوهاب (مطبوع ضمن بحوث ندوة دعوة الشيخ محمد بن عبد الوهاب، الجزء الأول).htm",
+      "ordinal": 38,
+      "page_id": "aca786f3a1188beb2cd38e477993c847108156dd82c29bc6e1dd18d93045f2e5",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/سير أعلام النبلاء - ط الرسالة/011.htm",
+      "ordinal": 0,
+      "page_id": "7721cccb3c2889fa3d8fa41b5f608c8530b6a95f818a0d5a657966487f1f6bcf",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/سير أعلام النبلاء - ط الرسالة/011.htm",
+      "ordinal": 275,
+      "page_id": "926b429da879f8e69ee658fc76da0649fcc025c924b040fe25ff996d1dfd11bf",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/سير أعلام النبلاء - ط الرسالة/011.htm",
+      "ordinal": 550,
+      "page_id": "0e6988648993c8bd3c7a72649705f123170c24c84225f2ca97f8da145e26b425",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/فضائل الصحابة - محمد حسن عبد الغفار/008.htm",
+      "ordinal": 0,
+      "page_id": "449dd2348134142f6a0e0cc114c1738baf2170edc44994af81d58fbec1084f20",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/فضائل الصحابة - محمد حسن عبد الغفار/008.htm",
+      "ordinal": 3,
+      "page_id": "8d99bbe05302c8d140bf2dcdb02497b7bd658b3a4065a10f1a4d0574ebb45b1e",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/فضائل الصحابة - محمد حسن عبد الغفار/008.htm",
+      "ordinal": 6,
+      "page_id": "e8317cfd05d9344bf9d7da9a9156aaf3f414d25722b7568ece12dbea9b30d6c4",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/قلادة النحر في وفيات أعيان الدهر/004.htm",
+      "ordinal": 0,
+      "page_id": "a9a5817c8654953c95ec4621fba9a46f6b0917524fb46b4ded113e3b3a6ce98c",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/قلادة النحر في وفيات أعيان الدهر/004.htm",
+      "ordinal": 210,
+      "page_id": "53a668b5c7934af25d57a89d1e2f6bb29b6ee721ab44f23cec1b7dba7f21816e",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/قلادة النحر في وفيات أعيان الدهر/004.htm",
+      "ordinal": 420,
+      "page_id": "0e8a7724e8c047b2d9c0c4be96845446b805c5bfddf7236dd28943af9a74d57b",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/مختصر تاريخ دمشق/005.htm",
+      "ordinal": 0,
+      "page_id": "cf5cffd143a7c42c36c1f4c7ed1a555ea15be8e4fcc91108ba77909b1dc661d1",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/مختصر تاريخ دمشق/005.htm",
+      "ordinal": 187,
+      "page_id": "a2783a82276b200b36c6524dcbece12bb0337039e9bbc263e375cc5f27651deb",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/مختصر تاريخ دمشق/005.htm",
+      "ordinal": 373,
+      "page_id": "4c275b40faa87dee737f399ec3e9b268f93ab8b8917a3acc90c42506a274a1ab",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/وفيات الأعيان/001.htm",
+      "ordinal": 0,
+      "page_id": "38a1e5a703aa158d52029c8765612fb14cede3882962a863984361c26449fddd",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/وفيات الأعيان/001.htm",
+      "ordinal": 239,
+      "page_id": "dd25664202b254d156de8385e13a3bf57ad238929d39fdd7c9babdbfcd414dca",
+      "passed": true
+    },
+    {
+      "zip_path": "Rijaal database data raw/وفيات الأعيان/001.htm",
+      "ordinal": 477,
+      "page_id": "2c04ca8fad164163fb3d083e454a3d1599f324ce052c31eaf069a86de94a9af4",
+      "passed": true
+    }
+  ],
+  "search_benchmarks": [
+    {
+      "query": "أسامة بن عمير",
+      "scope": "pages",
+      "mode": "words",
+      "returned": 20,
+      "has_more": true,
+      "elapsed_ms": 84.2
+    },
+    {
+      "query": "أبو المليح",
+      "scope": "pages",
+      "mode": "phrase",
+      "returned": 20,
+      "has_more": true,
+      "elapsed_ms": 20.3
+    },
+    {
+      "query": "محمد بن إسماعيل",
+      "scope": "entries",
+      "mode": "words",
+      "returned": 20,
+      "has_more": true,
+      "elapsed_ms": 72.5
+    },
+    {
+      "query": "روى عنه ولده وحده",
+      "scope": "pages",
+      "mode": "exact",
+      "returned": 2,
+      "has_more": false,
+      "elapsed_ms": 29.6
+    },
+    {
+      "query": "اسامة بن عمير",
+      "scope": "pages",
+      "mode": "words",
+      "returned": 20,
+      "has_more": true,
+      "elapsed_ms": 50.3
+    }
+  ],
+  "archive": {
+    "id": "d10e4714d6666e475139f165e55fb452644c649eb291c6d46b4bf49e7de40efc",
+    "filename": "Rijaal database data raw.zip",
+    "byte_size": 371315654,
+    "expected_files": 1622,
+    "imported_at": "2026-09-23T07:05:33.370974+00:00",
+    "status": "complete"
+  },
+  "scope": "Full-text source database with candidate headings and unresolved relationship mentions; no verified person consolidation or semantic deduplication."
+}

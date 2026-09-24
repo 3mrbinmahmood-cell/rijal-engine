@@ -1,0 +1,18 @@
+{
+  "reader_filename": "Shamela_Reader_V0.5.5(1).zip",
+  "reader_core_files": [
+    "reader.js",
+    "rijal-core.js",
+    "sanad-core.js",
+    "sanad-links.js"
+  ],
+  "reader_modified_in_deliverable": false,
+  "adapter_files": [
+    "rijal-db-client.js",
+    "rijal-db-button.js"
+  ],
+  "database_service": "http://127.0.0.1:8765",
+  "annotation_key": "shamela:v2",
+  "annotation_writes_by_adapter": false,
+  "integration": "Optional separate-source dialog; legacy isnad analysis remains independent."
+}

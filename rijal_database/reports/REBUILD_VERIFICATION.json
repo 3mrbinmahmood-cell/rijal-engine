@@ -1,0 +1,33 @@
+{
+  "source_table_counts": {
+    "metadata": 5,
+    "archives": 1,
+    "books": 578,
+    "source_files": 1622,
+    "page_texts": 668042,
+    "pages": 677154,
+    "page_fts_data": 98799,
+    "page_fts_idx": 30873,
+    "page_fts_docsize": 668042,
+    "page_fts_config": 1,
+    "spans": 1084909,
+    "entries": 969027,
+    "entry_fts_data": 8259,
+    "entry_fts_idx": 3704,
+    "entry_fts_docsize": 969027,
+    "entry_fts_config": 1,
+    "mentions": 420082,
+    "passages": 2562071,
+    "passage_locations": 2574375,
+    "persons": 0,
+    "aliases": 0,
+    "assertions": 0,
+    "identity_links": 0,
+    "review_log": 0
+  },
+  "corpus_counts_match_previous_import": true,
+  "chronology_reproduced": true,
+  "final_integrity_check": [
+    "ok"
+  ]
+}

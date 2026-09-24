@@ -1,0 +1,43 @@
+{
+  "database_bytes": 5292425216,
+  "database_sha256": "0153d70668b6b47b7b177c8420e18b6510c2f5c3ac924b017590f75c62471b64",
+  "compression": "gzip",
+  "parts": [
+    {
+      "filename": "rijal.sqlite.gz.001",
+      "bytes": 377487360,
+      "sha256": "039d621fd50bbecf51091699b82d3658ae116f88d996a966bfb2049cbc5ce902",
+      "archive_filename": "Rijal_Database_V1_Part_01_of_06.zip"
+    },
+    {
+      "filename": "rijal.sqlite.gz.002",
+      "bytes": 377487360,
+      "sha256": "395ee51ae199a20f08ed55b648ee87045c85b057356cb8e729cb83b3463691d9",
+      "archive_filename": "Rijal_Database_V1_Part_02_of_06.zip"
+    },
+    {
+      "filename": "rijal.sqlite.gz.003",
+      "bytes": 377487360,
+      "sha256": "1e0f21d6a62fa55d211c943fd8ef5bacca4889de437ba7e09d33dbc3f7049a02",
+      "archive_filename": "Rijal_Database_V1_Part_03_of_06.zip"
+    },
+    {
+      "filename": "rijal.sqlite.gz.004",
+      "bytes": 377487360,
+      "sha256": "6578c3b98d8f5af534198a0377beb9fa3754871eab01cc3af8f9b95155b66640",
+      "archive_filename": "Rijal_Database_V1_Part_04_of_06.zip"
+    },
+    {
+      "filename": "rijal.sqlite.gz.005",
+      "bytes": 377487360,
+      "sha256": "83aec7a2239d345326c824bd1d932560759ad687ca4b82941411519afdcf3a1c",
+      "archive_filename": "Rijal_Database_V1_Part_05_of_06.zip"
+    },
+    {
+      "filename": "rijal.sqlite.gz.006",
+      "bytes": 172892039,
+      "sha256": "4cd1c7cad97abdca8471da53766a80bd544d899e1788dae7368ec6668e2f59be",
+      "archive_filename": "Rijal_Database_V1_Part_06_of_06.zip"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+test_biography_names_and_dates (test_chronology.ChronologyTests.test_biography_names_and_dates) ... ok
+test_date_types (test_chronology.ChronologyTests.test_date_types) ... ok
+test_period_boundaries (test_chronology.ChronologyTests.test_period_boundaries) ... ok
+test_bad_query_and_unknown_id (test_database.DatabaseTests.test_bad_query_and_unknown_id) ... ok
+test_changed_archive_preserves_old_version (test_database.DatabaseTests.test_changed_archive_preserves_old_version) ... ok
+test_entries_are_candidates_and_offsets_literal (test_database.DatabaseTests.test_entries_are_candidates_and_offsets_literal) ... ok
+test_exact_dedup_keeps_all_references (test_database.DatabaseTests.test_exact_dedup_keeps_all_references) ... ok
+test_idempotent_reimport (test_database.DatabaseTests.test_idempotent_reimport) ... ok
+test_import_complete_and_integrity (test_database.DatabaseTests.test_import_complete_and_integrity) ... ok
+test_literal_and_normalized_search_are_distinct (test_database.DatabaseTests.test_literal_and_normalized_search_are_distinct) ... ok
+test_original_bytes_and_footnotes (test_database.DatabaseTests.test_original_bytes_and_footnotes) ... ok
+test_passage_references_and_no_inferred_break (test_database.DatabaseTests.test_passage_references_and_no_inferred_break) ... ok
+test_reference_without_page_label (test_database.DatabaseTests.test_reference_without_page_label) ... ok
+test_api_and_null_origin_for_file_reader (test_http.HttpTests.test_api_and_null_origin_for_file_reader) ... ok
+test_local_reader_origin_and_external_origin (test_http.HttpTests.test_local_reader_origin_and_external_origin) ... ok
+test_web_assets_and_api_errors (test_http.HttpTests.test_web_assets_and_api_errors) ... 127.0.0.1 - - [23/Sep/2026 03:41:00] "GET /api/v1/search?q=*** HTTP/1.1" 400 -
+127.0.0.1 - - [23/Sep/2026 03:41:00] "GET /api/v1/page/unknown HTTP/1.1" 404 -
+ok
+test_extract_missing_part_from_adjacent_download_zip (test_packaging.PackagingTests.test_extract_missing_part_from_adjacent_download_zip) ... Reading downloaded part: Part02.zip
+First launch: checking the compressed database parts...
+Database verified and ready. Future launches skip unpacking.
+ok
+test_missing_or_changed_part_is_not_silently_used (test_packaging.PackagingTests.test_missing_or_changed_part_is_not_silently_used) ... First launch: checking the compressed database parts...
+ok
+test_multi_part_reconstruction_and_repeat_launch (test_packaging.PackagingTests.test_multi_part_reconstruction_and_repeat_launch) ... First launch: checking the compressed database parts...
+Database verified and ready. Future launches skip unpacking.
+ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.671s
+
+OK

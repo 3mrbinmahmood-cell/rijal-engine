@@ -1,0 +1,154 @@
+Checking V1 release checksum...
+Extracting biography spans and statement candidates...
+Auditing every quotation, trigger and source offset...
+{
+  "version": "1.1-extraction",
+  "base_sha256": "29195ec69604edebba9a9588a7ebb8c1d3e0cebcedbb11465dc0971478a101e6",
+  "summary": {
+    "biographies": 3,
+    "segments": 5,
+    "statements": 8,
+    "pages_scanned": 5,
+    "continuation_segments": 2,
+    "distinct_statement_texts": 7,
+    "biography_classifications": {
+      "biography_candidate": 3
+    },
+    "statement_origins": {
+      "footnote": 1,
+      "main_text": 7
+    },
+    "statement_types": {
+      "assessment": 5,
+      "death": 1,
+      "family": 2,
+      "students": 1,
+      "teachers": 1
+    },
+    "subject_statuses": {
+      "editorial_context_unresolved": 1,
+      "unassigned_source_context": 2,
+      "unresolved_in_biography_context": 5
+    },
+    "boundary_statuses": {
+      "next_recorded_heading": 1,
+      "source_file_end_unresolved": 2
+    },
+    "biographies_with_continuations": 1,
+    "biographies_with_statements": 3,
+    "statements_with_attribution_labels": 4,
+    "verified_people": null,
+    "identity_merges_performed": 0,
+    "original_source_text_changed": false
+  },
+  "offset_audit": {
+    "quote_mismatches": 0,
+    "trigger_mismatches": 0,
+    "attribution_mismatches": 0,
+    "bad_segments": 0,
+    "wrong_biography_owner": 0,
+    "headings_crossed": 0,
+    "footnote_layer_errors": 0,
+    "pending_boundaries": 0,
+    "missing_candidates": 0
+  },
+  "integrity_check": [
+    "ok"
+  ],
+  "fts_integrity": "passed",
+  "elapsed_seconds": 0.0,
+  "method": "All V1 candidate names retained. Every recorded heading closes the preceding candidate, including non-biographical headings. Continuation stays within one HTML source file. Literal trigger-based excerpts include separate footnotes and unassigned contexts. Labels and attribution strings are unverified; no person merges, adjudicated grades, resolved teacher/student edges, or chronology changes."
+}
+Checking V1 source database...
+Restoring and verifying the extraction layer...
+Checking Extraction database...
+Checking V1 source database...
+Restoring and verifying the extraction layer...
+Checking Extraction database...
+Checking V1 source database...
+Checking V1 source database...
+Checking V1 release checksum...
+Extracting biography spans and statement candidates...
+Auditing every quotation, trigger and source offset...
+{
+  "version": "1.1-extraction",
+  "base_sha256": "29195ec69604edebba9a9588a7ebb8c1d3e0cebcedbb11465dc0971478a101e6",
+  "summary": {
+    "biographies": 3,
+    "segments": 5,
+    "statements": 8,
+    "pages_scanned": 5,
+    "continuation_segments": 2,
+    "distinct_statement_texts": 7,
+    "biography_classifications": {
+      "biography_candidate": 3
+    },
+    "statement_origins": {
+      "footnote": 1,
+      "main_text": 7
+    },
+    "statement_types": {
+      "assessment": 5,
+      "death": 1,
+      "family": 2,
+      "students": 1,
+      "teachers": 1
+    },
+    "subject_statuses": {
+      "editorial_context_unresolved": 1,
+      "unassigned_source_context": 2,
+      "unresolved_in_biography_context": 5
+    },
+    "boundary_statuses": {
+      "next_recorded_heading": 1,
+      "source_file_end_unresolved": 2
+    },
+    "biographies_with_continuations": 1,
+    "biographies_with_statements": 3,
+    "statements_with_attribution_labels": 4,
+    "verified_people": null,
+    "identity_merges_performed": 0,
+    "original_source_text_changed": false
+  },
+  "offset_audit": {
+    "quote_mismatches": 0,
+    "trigger_mismatches": 0,
+    "attribution_mismatches": 0,
+    "bad_segments": 0,
+    "wrong_biography_owner": 0,
+    "headings_crossed": 0,
+    "footnote_layer_errors": 0,
+    "pending_boundaries": 0,
+    "missing_candidates": 0
+  },
+  "integrity_check": [
+    "ok"
+  ],
+  "fts_integrity": "passed",
+  "elapsed_seconds": 0.0,
+  "method": "All V1 candidate names retained. Every recorded heading closes the preceding candidate, including non-biographical headings. Continuation stays within one HTML source file. Literal trigger-based excerpts include separate footnotes and unassigned contexts. Labels and attribution strings are unverified; no person merges, adjudicated grades, resolved teacher/student edges, or chronology changes."
+}
+
+test_biography_search_and_paginated_continuation (test_api_install.ApiTests.test_biography_search_and_paginated_continuation) ... ok
+test_http_stats_errors_and_static_ui (test_api_install.ApiTests.test_http_stats_errors_and_static_ui) ... ok
+test_literal_statements_with_type_origin_and_owner_filters (test_api_install.ApiTests.test_literal_statements_with_type_origin_and_owner_filters) ... ok
+test_changed_existing_extraction_is_rejected (test_api_install.InstallTests.test_changed_existing_extraction_is_rejected) ... ok
+test_restore_and_adjacent_zip (test_api_install.InstallTests.test_restore_and_adjacent_zip) ... ok
+test_wrong_base_and_damaged_part_are_rejected (test_api_install.InstallTests.test_wrong_base_and_damaged_part_are_rejected) ... ok
+test_diacritics_and_direction (test_extraction.DetectionTests.test_diacritics_and_direction) ... ok
+test_footnotes_do_not_supply_main_attribution (test_extraction.DetectionTests.test_footnotes_do_not_supply_main_attribution) ... ok
+test_format_marks_and_marked_conjunction (test_extraction.DetectionTests.test_format_marks_and_marked_conjunction) ... ok
+test_multiline_trigger_and_long_context (test_extraction.DetectionTests.test_multiline_trigger_and_long_context) ... ok
+test_multiple_types_share_literal_quote (test_extraction.DetectionTests.test_multiple_types_share_literal_quote) ... ok
+test_report_assessment_not_narrator_grade (test_extraction.DetectionTests.test_report_assessment_not_narrator_grade) ... ok
+test_all_checks_pass_and_base_is_unchanged (test_extraction.FullExtractionTests.test_all_checks_pass_and_base_is_unchanged) ... ok
+test_continuation_stops_at_any_heading (test_extraction.FullExtractionTests.test_continuation_stops_at_any_heading) ... ok
+test_existing_output_is_protected (test_extraction.FullExtractionTests.test_existing_output_is_protected) ... ok
+test_fts_exact_quote_remains_unchanged (test_extraction.FullExtractionTests.test_fts_exact_quote_remains_unchanged) ... ok
+test_repeated_quote_keeps_both_occurrences (test_extraction.FullExtractionTests.test_repeated_quote_keeps_both_occurrences) ... ok
+test_source_file_boundary_is_never_crossed (test_extraction.FullExtractionTests.test_source_file_boundary_is_never_crossed) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.594s
+
+OK

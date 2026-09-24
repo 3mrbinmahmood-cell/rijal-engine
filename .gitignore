@@ -216,3 +216,15 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Rijāl database release payloads and user source books
+*.sqlite
+*.sqlite-*
+*.sqlite.gz.*
+*.zip
+rijal_database/sources/*
+!rijal_database/sources/KEEP_ORIGINAL_ARCHIVE.txt
+rijal_database/reports/CHRONOLOGY_EVIDENCE.csv
+rijal_database/reports/SOURCE_MANIFEST.json
+rijal_database/*.unpacking*
+rijal_database/.*sqlite*
