@@ -35,6 +35,7 @@ years; entries without dates and differing names need later review methods.
 
 ```bash
 python -m rijal_database.review_tools.name_inventory build rijal_database/extraction.sqlite name_inventory.sqlite
+python -m rijal_database.review_tools.name_inventory triage name_inventory.sqlite rijal_database/rijal.sqlite rijal_database/extraction.sqlite
 python -m rijal_database.review_tools.name_inventory list name_inventory.sqlite --limit 10
 python -m rijal_database.review_tools.name_inventory inspect name_inventory.sqlite rijal_database/rijal.sqlite rijal_database/extraction.sqlite "ابراهيم بن ابي موسي الاشعري"
 python -m rijal_database.review_tools.name_inventory decide name_inventory.sqlite ENTRY_A ENTRY_B uncertain --reason "Compare teachers and dates" --reviewer "Omar"
@@ -48,3 +49,10 @@ already in the chronology queue. Pairwise review decisions and their history
 are stored in this separate inventory database; there is no merge operation.
 Reviewers should compare source text, patronymics, teachers, students, places
 and conflicting dates before promoting any pair for a decision.
+
+The date triage found **14 groups with differing extracted death years**, **576
+with at least two dated entries agreeing**, **1,946 with one dated entry**, and
+**22,888 without extracted dates**. A disagreement can reflect variant
+historical reports about one person; agreement can occur between homonyms.
+These flags only order the review list. The inspected source quotations must
+be read before recording a pairwise decision.

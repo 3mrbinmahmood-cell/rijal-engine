@@ -3,7 +3,9 @@ import tempfile
 import unittest
 from pathlib import Path
 from rijal_database.review_tools.queue import connect, decide
-from rijal_database.review_tools.name_inventory import SCHEMA as NAME_SCHEMA, decide as decide_name
+from rijal_database.review_tools.name_inventory import (
+    SCHEMA as NAME_SCHEMA, decide as decide_name, triage)
+import json
 
 class ReviewTests(unittest.TestCase):
     def test_pairwise_decision_history_and_group_guard(self):
@@ -40,6 +42,32 @@ class ReviewTests(unittest.TestCase):
             decide_name(db,'a','b','different','Different teachers','reviewer')
             self.assertEqual(db.execute('SELECT decision FROM pair_decisions').fetchone()[0],'different')
             self.assertEqual(db.execute('SELECT count(*) FROM decision_history').fetchone()[0],2)
+
+    def test_date_triage_does_not_make_identity_decisions(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            (root/'data').mkdir()
+            (root/'extraction_data').mkdir()
+            (root/'data'/'PAYLOAD.json').write_text(json.dumps({'database_sha256':'base'}))
+            (root/'extraction_data'/'PAYLOAD.json').write_text(
+                json.dumps({'base_sha256':'base','database_sha256':'extract'}))
+            base=root/'v1.sqlite'
+            with sqlite3.connect(base) as source:
+                source.execute('CREATE TABLE chronology_records(entry_id TEXT PRIMARY KEY,death_year INTEGER)')
+                source.executemany('INSERT INTO chronology_records VALUES (?,?)',
+                                   [('a',100),('b',101),('c',100),('d',100)])
+            with sqlite3.connect(root/'review.sqlite',uri=True) as db:
+                db.executescript(NAME_SCHEMA)
+                db.execute("INSERT INTO methods VALUES ('extraction_sha256','extract')")
+                db.executemany('INSERT INTO name_groups VALUES (?,?,?)',
+                               [('conflict',2,2),('agree',2,2),('unknown',2,2)])
+                for entry,key in [('a','conflict'),('b','conflict'),('c','agree'),
+                                  ('d','agree'),('e','unknown'),('f','unknown')]:
+                    db.execute('INSERT INTO name_members VALUES (?,?,?,?,?,?,?,?)',
+                               (entry,key,key,'page','book','source','biography_candidate',0))
+                result=triage(db,base,root/'extraction.sqlite')
+                self.assertEqual(result,{'conflicting_dates':1,'matching_dates':1,'no_dates':1})
+                self.assertEqual(db.execute('SELECT count(*) FROM pair_decisions').fetchone()[0],0)
 
 if __name__=='__main__':
     unittest.main()

@@ -24,3 +24,5 @@ entries for pairwise human review. No identities have been merged.
 The broader long-name inventory contains 25,424 lower-confidence groups
 covering 74,081 biography candidates. It supports source-context inspection
 and separately logged pairwise review, with no automatic merge operation.
+Date triage flags 14 longer-name groups with differing extracted death years
+for closer reading; a date conflict alone is not an identity decision.
