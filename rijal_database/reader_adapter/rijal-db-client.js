@@ -6,6 +6,12 @@ class RijalDatabaseClient{
  search(query,options={}){const {signal,...params}=options;return this.request('search',{q:query,...params},signal)}
  page(id){return this.request('page/'+encodeURIComponent(id))}
  entry(id){return this.request('entry/'+encodeURIComponent(id))}
+ identity(id){return this.request('identity/entry/'+encodeURIComponent(id))}
+ identityMembers(id,options={}){return this.request('identity/members/'+encodeURIComponent(id),options)}
+ identityDates(entryId){return this.request('identity/dates/'+encodeURIComponent(entryId))}
+ identityGraph(entryId,options={}){return this.request('identity/graph/'+encodeURIComponent(entryId),options)}
+ graphEvidence(entryId,relation,mentionId,options={}){return this.request('graph/evidence/'+encodeURIComponent(entryId),{relation,mention:mentionId,...options})}
+ graphMention(mentionId,options={}){return this.request('graph/mention/'+encodeURIComponent(mentionId),options)}
  sources(textId,options={}){return this.request('sources',{text_id:textId,...options})}
  books(query=''){return this.request('books',{q:query})}
  stats(){return this.request('stats')}

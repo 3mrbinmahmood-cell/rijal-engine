@@ -22,6 +22,14 @@ class Element{
  const client=new root.RijalDatabaseClient();const result=await client.search('أسامة بن عمير',{scope:'entries',limit:20});assert.equal(result.results[0].page_id,'stable-page');
  const url=new URL(calls.find(x=>x[0]==='fetch')[1]);assert.equal(url.pathname,'/api/v1/search');assert.equal(url.searchParams.get('scope'),'entries');
  await client.page('stable-page');await client.sources(2,{offset:100});await client.entry('entry-id');
+ await client.identity('entry-id');await client.identityDates('entry-id');
+ await client.identityGraph('entry-id',{relation:'teacher',limit:8});
+ await client.graphEvidence('entry-id','teacher','mention-id',{limit:2});
+ await client.graphMention('mention-id',{relation:'student'});
+ const urls=calls.filter(x=>x[0]==='fetch').map(x=>new URL(x[1]));
+ assert(urls.some(u=>u.pathname==='/api/v1/identity/entry/entry-id'));
+ assert(urls.some(u=>u.pathname==='/api/v1/identity/graph/entry-id'&&u.searchParams.get('relation')==='teacher'));
+ assert(urls.some(u=>u.pathname==='/api/v1/graph/evidence/entry-id'&&u.searchParams.get('mention')==='mention-id'));
  const before=created.length;vm.runInContext(fs.readFileSync(path.join(base,'reader_adapter','rijal-db-button.js'),'utf8'),context);assert.equal(created.length,before,'Repeated mount must not duplicate the button');
  console.log('PASS reader adapter: asynchronous API contract, query encoding, in-reader modal, repeated mount, no access to annotation storage');
 })().catch(e=>{console.error(e);process.exit(1)});

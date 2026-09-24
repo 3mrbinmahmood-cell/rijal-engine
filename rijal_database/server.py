@@ -17,6 +17,8 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse, quote
 sys.path.insert(0,str(Path(__file__).resolve().parent/'tools'))
 from common import VERSION, connect, digest, normalize
+try:from .identity_api import IdentityStore
+except ImportError:from identity_api import IdentityStore
 
 BASE=Path(__file__).resolve().parent
 
@@ -40,7 +42,9 @@ def excerpt(text,query,width=340):
     return {'text':text[start:end],'start_offset':start,'end_offset':end}
 
 class Database:
-    def __init__(self,path,archives=()): self.path=Path(path);self.archives=[Path(p) for p in archives]
+    def __init__(self,path,archives=(),identity=None,dates=None,graph=None):
+        self.path=Path(path);self.archives=[Path(p) for p in archives]
+        self.identities=IdentityStore(identity,dates,graph)
     def con(self): return connect(self.path,readonly=True)
     def stats(self):
         with closing(self.con()) as c:
@@ -185,6 +189,12 @@ class Handler(BaseHTTPRequestHandler):
             if path=='/api/v1/passage-sources': return self.json(db.passage_sources(arg('id'),arg('limit',100),arg('offset',0)))
             if path.startswith('/api/v1/page/'): return self.json(db.page(path.rsplit('/',1)[-1]))
             if path.startswith('/api/v1/entry/'): return self.json(db.entry(path.rsplit('/',1)[-1]))
+            if path.startswith('/api/v1/identity/entry/'): return self.json(db.identities.identity_entry(path.rsplit('/',1)[-1]))
+            if path.startswith('/api/v1/identity/members/'): return self.json(db.identities.identity_members(path.rsplit('/',1)[-1],arg('limit',30),arg('offset',0)))
+            if path.startswith('/api/v1/identity/dates/'): return self.json(db.identities.identity_dates(path.rsplit('/',1)[-1]))
+            if path.startswith('/api/v1/identity/graph/'): return self.json(db.identities.identity_graph(path.rsplit('/',1)[-1],arg('relation',''),arg('limit',30),arg('offset',0)))
+            if path.startswith('/api/v1/graph/evidence/'): return self.json(db.identities.graph_evidence(path.rsplit('/',1)[-1],arg('relation',''),arg('mention',''),arg('limit',30),arg('offset',0)))
+            if path.startswith('/api/v1/graph/mention/'): return self.json(db.identities.graph_mention(path.rsplit('/',1)[-1],arg('relation',''),arg('limit',30),arg('offset',0)))
             if path.startswith('/api/v1/raw/'):
                 raw,name=db.raw_source(path.rsplit('/',1)[-1],arg('page'))
                 self.headers_out(200,'application/octet-stream',len(raw),Path(name).name);self.wfile.write(raw);return
@@ -204,11 +214,17 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--db',default=str(BASE/'rijal.sqlite'));p.add_argument('--port',type=int,default=8765)
+    p.add_argument('--identity',help='Optional unified_identity_view.sqlite')
+    p.add_argument('--dates',help='Optional identity_dates.sqlite (requires --identity)')
+    p.add_argument('--graph',help='Optional relationship_graph.sqlite (requires --identity)')
     p.add_argument('--archive',action='append',default=[]);p.add_argument('--open',action='store_true');a=p.parse_args()
     if not Path(a.db).is_file(): p.error('Database file not found. Extract the complete database package first.')
+    if a.identity and not Path(a.identity).is_file():p.error('Identity lookup file not found.')
+    if a.dates and (not a.identity or not Path(a.dates).is_file()):p.error('Date evidence requires an existing --identity file.')
+    if a.graph and (not a.identity or not Path(a.graph).is_file()):p.error('Relationship graph requires an existing --identity file.')
     try: server=ThreadingHTTPServer(('127.0.0.1',a.port),Handler)
     except OSError as e: p.error(f'Cannot start on port {a.port}: {e}. Use --port with another number.')
-    server.db=Database(a.db,a.archive);url=f'http://127.0.0.1:{a.port}/'
+    server.db=Database(a.db,a.archive,a.identity,a.dates,a.graph);url=f'http://127.0.0.1:{a.port}/'
     print('Rijal database:',url,'\nKeep this window open. Ctrl+C stops the server.',flush=True)
     if a.open: threading.Timer(.4,lambda:webbrowser.open(url)).start()
     try: server.serve_forever()

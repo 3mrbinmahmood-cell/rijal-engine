@@ -26,8 +26,22 @@ const references = await db.sources(page.text_id);
 | `duplicates` | Required `text_id`; exact repeated paragraphs on the page with occurrence counts and offsets. |
 | `passage-sources` | Required `id=<passage_id>`; all references to that exact paragraph, `limit`, `offset`. |
 | `raw/<source_id>` | Downloads exact source HTML after SHA-256 verification. Optional `page=<page_id>` returns the original byte range covering that page. Requires unchanged original ZIP in `sources/` or `--archive` startup argument. The last page byte range may include trailing source markup. |
+| `identity/entry/<entry_id>` | Optional reviewed/provisional/unlinked identity for a V1 source entry ID. Requires `--identity`. |
+| `identity/members/<identity_id>` | Paginated source entries under that identity. Requires `--identity`. |
+| `identity/dates/<entry_id>` | Available death-year claims and their original quotes. Requires `--identity` and `--dates`. |
+| `identity/graph/<entry_id>` | Paginated unresolved teacher/student name mentions. Requires `--identity` and `--graph`. |
+| `graph/evidence/<entry_id>` | `relation=teacher\|student&mention=<mention_id>`; entry and page evidence for one mention. |
+| `graph/mention/<mention_id>` | Identities mentioning the same unresolved name; spelling does not establish a shared person. |
 
 The API permits read requests from local HTTP origins and `file://` (`Origin: null`) for the downloadable reader. It binds to loopback, not the LAN. HTTP error bodies have an `error` string and appropriate 400/404/500 status.
+
+Start the main service with `--identity unified_identity_view.sqlite --dates
+identity_dates.sqlite --graph relationship_graph.sqlite` to enable the
+optional identity endpoints. The reader adapter exposes `identity(entryId)`,
+`identityMembers(identityId)`, `identityDates(entryId)`,
+`identityGraph(entryId)`, `graphEvidence(entryId,relation,mentionId)`, and
+`graphMention(mentionId)`. V1.1 reuses V1 source entry IDs, so `entry(id)` and
+`identity(id)` refer to the same source candidate.
 
 ## Stable references and offset semantics
 
@@ -47,9 +61,9 @@ The old reader's three-book experiment remains independent. This adapter does no
 
 ## Optional extraction inspector (port 8766)
 
-The separate `extraction_server.py` can load `--identity`, `--dates`, and
-`--graph` SQLite files. These endpoints are read-only and are not yet the
-reader's port-8765 API:
+The separate `extraction_server.py` can also load `--identity`, `--dates`, and
+`--graph` SQLite files. These endpoints are read-only equivalents on port
+8766:
 
 | Endpoint | Meaning |
 |---|---|

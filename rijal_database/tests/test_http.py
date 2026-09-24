@@ -1,7 +1,8 @@
-import json,sys,threading,unittest,urllib.request,urllib.error,sqlite3
+import json,sys,threading,unittest,urllib.request,urllib.error,sqlite3,tempfile
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]));sys.path.insert(0,str(Path(__file__).resolve().parent))
 from server import Handler,ThreadingHTTPServer
+from identity_api import IdentityStore
 import test_database as fixture
 
 class HttpTests(unittest.TestCase):
@@ -38,5 +39,31 @@ class HttpTests(unittest.TestCase):
         with self.get('/api/v1/stats','https://example.invalid') as r:self.assertIsNone(r.headers.get('Access-Control-Allow-Origin'))
         request=urllib.request.Request(self.url+'/api/v1/search',method='OPTIONS',headers={'Origin':'null','Access-Control-Request-Private-Network':'true'})
         with urllib.request.urlopen(request) as r:self.assertEqual(r.status,204);self.assertEqual(r.headers['Access-Control-Allow-Private-Network'],'true')
+    def test_reader_identity_endpoint_uses_source_entry_id(self):
+        entry_id=self.db.con().execute('SELECT id FROM entries LIMIT 1').fetchone()[0]
+        with tempfile.TemporaryDirectory() as folder:
+            identity=Path(folder)/'identity.sqlite'
+            with sqlite3.connect(identity) as c:
+                c.executescript('''CREATE TABLE identities(id TEXT,kind TEXT,
+                  display_name TEXT,entry_count INTEGER);
+                  CREATE TABLE entry_identity(entry_id TEXT,identity_id TEXT,
+                  identity_kind TEXT,name_bucket_id TEXT,name_key TEXT,
+                  name_label TEXT,classification TEXT,book_id TEXT,
+                  source_id TEXT,opening_page_id TEXT);''')
+                c.execute('INSERT INTO identities VALUES (?,?,?,?)',
+                          ('person','reviewed_person','Test Name',1))
+                c.execute('INSERT INTO entry_identity VALUES (?,?,?,?,?,?,?,?,?,?)',
+                          (entry_id,'person','reviewed_person','bucket','key','Test Name',
+                           'biography_candidate','book','source','page'))
+            before=self.server.db.identities
+            try:
+                self.server.db.identities=IdentityStore(identity)
+                with self.get('/api/v1/identity/entry/'+entry_id,'null') as response:
+                    row=json.load(response)
+                    self.assertEqual(row['identity_id'],'person')
+                    self.assertEqual(response.headers['Access-Control-Allow-Origin'],'null')
+                with self.get('/api/v1/identity/members/person') as response:
+                    self.assertEqual(json.load(response)['results'][0]['entry_id'],entry_id)
+            finally:self.server.db.identities=before
 
 if __name__=='__main__':unittest.main(verbosity=2)
