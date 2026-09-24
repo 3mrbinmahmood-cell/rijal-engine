@@ -54,6 +54,21 @@ class IdentityApiTest(unittest.TestCase):
             result=api.identity_dates('a')
             self.assertEqual([r['year'] for r in result['claims']],[186,187])
             self.assertIsNone(api.identity_dates('b')['summary'])
+            graph=Path(directory)/'graph.sqlite'
+            with sqlite3.connect(graph) as db:
+                db.executescript('''CREATE TABLE name_mentions(id TEXT,name TEXT,
+                  resolution_status TEXT);
+                  CREATE TABLE neighbors(identity_id TEXT,relation TEXT,
+                  mention_id TEXT,source_entries INTEGER,supporting_pairs INTEGER);''')
+                db.execute('INSERT INTO name_mentions VALUES (?,?,?)',
+                           ('mention','Teacher Name','unresolved_name'))
+                db.execute('INSERT INTO neighbors VALUES (?,?,?,?,?)',
+                           ('person','teacher','mention',2,3))
+            api.graph_path=graph
+            self.assertEqual(api.identity_graph('a','teacher')['results'][0]['name'],
+                             'Teacher Name')
+            self.assertEqual(api.identity_graph('b','teacher')['results'],[])
+            with self.assertRaises(ValueError):api.identity_graph('a','unknown')
 
 
 if __name__=='__main__':unittest.main()

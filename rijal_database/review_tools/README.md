@@ -291,3 +291,14 @@ without replacing the years. This covers dates already extracted in the
 review inventory, not every date in the full corpus. Start the biography
 inspector with `--identity unified_identity_view.sqlite --dates
 identity_dates.sqlite` to display them alongside the source biography.
+
+Run `python -m rijal_database.review_tools.relationship_graph
+full_relationship_gaps.sqlite unified_identity_view.sqlite
+relationship_graph.sqlite` to build the first queryable relationship graph.
+`name_mentions` are unresolved teacher/student **names**, not person IDs;
+`observations` retain both biography entry IDs, the source opening page, and
+review priority; `neighbors` summarizes support per current identity. This
+graph uses the existing overlapping-name queue, so it does not yet cover every
+biography in the corpus. Start the inspector with `--identity
+unified_identity_view.sqlite --graph relationship_graph.sqlite` (and optional
+`--dates identity_dates.sqlite`) to browse these tentative relationships.

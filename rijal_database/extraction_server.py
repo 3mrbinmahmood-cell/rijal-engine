@@ -9,10 +9,11 @@ except ImportError:from server import Database,fts_query
 BASE=Path(__file__).resolve().parent
 
 class Extraction:
-    def __init__(self,base,extracted,identity=None,dates=None):
+    def __init__(self,base,extracted,identity=None,dates=None,graph=None):
         self.base=Path(base);self.path=Path(extracted);self.sources=Database(base)
         self.identity_path=Path(identity) if identity else None
         self.dates_path=Path(dates) if dates else None
+        self.graph_path=Path(graph) if graph else None
     def con(self):
         c=sqlite3.connect(self.path.resolve().as_uri()+'?mode=ro',uri=True);c.row_factory=sqlite3.Row;return c
     def identity_con(self):
@@ -52,6 +53,26 @@ class Extraction:
                 (identity['identity_id'],))]
         return {'identity_id':identity['identity_id'],
                 'summary':dict(summary) if summary else None,'claims':claims}
+    def identity_graph(self,entry_id,relation='',limit=30,offset=0):
+        identity=self.identity_entry(entry_id)
+        if not self.graph_path:raise KeyError('Relationship graph is not installed')
+        if relation and relation not in ('teacher','student'):
+            raise ValueError('Unknown graph relation')
+        limit=max(1,min(100,int(limit)));offset=max(0,int(offset))
+        sql='''SELECT n.relation,m.name,m.resolution_status,n.source_entries,
+            n.supporting_pairs FROM neighbors n JOIN name_mentions m
+            ON m.id=n.mention_id WHERE n.identity_id=?'''
+        params=[identity['identity_id']]
+        if relation:sql+=' AND n.relation=?';params.append(relation)
+        sql+=' ORDER BY n.source_entries DESC,n.supporting_pairs DESC,m.name LIMIT ? OFFSET ?'
+        params.extend((limit+1,offset))
+        with closing(sqlite3.connect(self.graph_path.resolve().as_uri()+'?mode=ro',
+                                     uri=True)) as c:
+            c.row_factory=sqlite3.Row
+            rows=[dict(r) for r in c.execute(sql,params)]
+        return {'identity_id':identity['identity_id'],'results':rows[:limit],
+                'has_more':len(rows)>limit,'limit':limit,'offset':offset,
+                'status':'heuristic_unresolved_names'}
     def stats(self):
         with closing(self.con()) as c:return {'summary':json.loads(c.execute("SELECT value FROM metadata WHERE key='summary'").fetchone()[0]),'method':c.execute("SELECT value FROM metadata WHERE key='method'").fetchone()[0],'read_only':True}
     def citation(self,c,pid):return dict(c.execute('SELECT * FROM citations WHERE page_id=?',(pid,)).fetchone())
@@ -114,6 +135,7 @@ class Handler(BaseHTTPRequestHandler):
             if u.path.startswith('/api/identity/entry/'):return self.reply(db.identity_entry(u.path.rsplit('/',1)[-1]))
             if u.path.startswith('/api/identity/members/'):return self.reply(db.identity_members(u.path.rsplit('/',1)[-1],arg('limit',30),arg('offset',0)))
             if u.path.startswith('/api/identity/dates/'):return self.reply(db.identity_dates(u.path.rsplit('/',1)[-1]))
+            if u.path.startswith('/api/identity/graph/'):return self.reply(db.identity_graph(u.path.rsplit('/',1)[-1],arg('relation'),arg('limit',30),arg('offset',0)))
             if u.path.startswith('/api/page/'):return self.reply(db.sources.page(u.path.rsplit('/',1)[-1]))
             files={'/':'index.html','/app.js':'app.js','/style.css':'style.css'}
             if u.path in files:
@@ -125,11 +147,12 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self,*args):pass
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--db',default=str(BASE/'rijal.sqlite'));p.add_argument('--extraction',default=str(BASE/'extraction.sqlite'));p.add_argument('--identity',help='Optional unified_identity_view.sqlite');p.add_argument('--dates',help='Optional identity_dates.sqlite (requires --identity)');p.add_argument('--port',type=int,default=8766);p.add_argument('--open',action='store_true');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--db',default=str(BASE/'rijal.sqlite'));p.add_argument('--extraction',default=str(BASE/'extraction.sqlite'));p.add_argument('--identity',help='Optional unified_identity_view.sqlite');p.add_argument('--dates',help='Optional identity_dates.sqlite (requires --identity)');p.add_argument('--graph',help='Optional relationship_graph.sqlite (requires --identity)');p.add_argument('--port',type=int,default=8766);p.add_argument('--open',action='store_true');a=p.parse_args()
     if not Path(a.db).is_file() or not Path(a.extraction).is_file():p.error('Run START_EXTRACTION_WINDOWS.bat first.')
     if a.identity and not Path(a.identity).is_file():p.error('Identity lookup file not found.')
     if a.dates and (not a.identity or not Path(a.dates).is_file()):p.error('Date evidence requires an existing --identity file.')
-    server=ThreadingHTTPServer(('127.0.0.1',a.port),Handler);server.db=Extraction(a.db,a.extraction,a.identity,a.dates);url=f'http://127.0.0.1:{a.port}/';print('Biography and statement inspection:',url,flush=True)
+    if a.graph and (not a.identity or not Path(a.graph).is_file()):p.error('Relationship graph requires an existing --identity file.')
+    server=ThreadingHTTPServer(('127.0.0.1',a.port),Handler);server.db=Extraction(a.db,a.extraction,a.identity,a.dates,a.graph);url=f'http://127.0.0.1:{a.port}/';print('Biography and statement inspection:',url,flush=True)
     if a.open:threading.Timer(.4,lambda:webbrowser.open(url)).start()
     try:server.serve_forever()
     except KeyboardInterrupt:pass
