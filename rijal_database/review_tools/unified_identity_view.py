@@ -32,10 +32,11 @@ def open_ro(path):
     return sqlite3.connect(f'file:{Path(path).resolve()}?mode=ro',uri=True)
 
 def build(full_path,registry_path,full_links_path,variant_links_path,
-          review_path,output_path):
+          review_path,output_path,relationship_links_path=None):
     if Path(output_path).exists():raise ValueError('Use a new output path')
     full=open_ro(full_path);registry=open_ro(registry_path)
     literal=open_ro(full_links_path);variants=open_ro(variant_links_path)
+    relationship=open_ro(relationship_links_path) if relationship_links_path else None
     review=open_ro(review_path);target=sqlite3.connect(output_path)
     try:
         sha=full.execute("SELECT value FROM release_meta WHERE key='v1_1_sha256'").fetchone()[0]
@@ -45,6 +46,9 @@ def build(full_path,registry_path,full_links_path,variant_links_path,
                              (review,'methods','extraction_sha256')):
             if db.execute(f'SELECT value FROM {table} WHERE key=?',(key,)).fetchone()!=(sha,):
                 raise ValueError('Identity inputs refer to different extraction releases')
+        if relationship and relationship.execute(
+            "SELECT value FROM metadata WHERE key='v1_1_sha256'").fetchone()!=(sha,):
+            raise ValueError('Relationship links refer to a different extraction release')
         target.executescript(SCHEMA)
         reviewed=dict(registry.execute('SELECT entry_id,person_id FROM person_entries'))
         people={pid:(name,status) for pid,name,status in registry.execute(
@@ -68,6 +72,10 @@ def build(full_path,registry_path,full_links_path,variant_links_path,
         for a,b,kind in variants.execute('SELECT left_entry_id,right_entry_id,evidence_kind '
                                           'FROM links'):
             links.append((a,b,'variant_'+kind))
+        if relationship:
+            for a,b,kind in relationship.execute('SELECT left_entry_id,right_entry_id,'
+                                                 'evidence_kind FROM links'):
+                links.append((a,b,'relationship_'+kind))
         dispositions=[]
         for a,b,kind in links:
             pair=tuple(sorted((a,b)))
@@ -137,14 +145,17 @@ def build(full_path,registry_path,full_links_path,variant_links_path,
                 'review_bridges':sum(d[3]=='review_bridge' for d in dispositions),
                 'vetoed_links':sum(d[3]=='review_veto' for d in dispositions)}
     finally:
-        full.close();registry.close();literal.close();variants.close();review.close();target.close()
+        full.close();registry.close();literal.close();variants.close();review.close()
+        if relationship:relationship.close()
+        target.close()
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for a in ('full_index','registry','full_links','variant_links','review','output'):
         p.add_argument(a)
+    p.add_argument('--relationship-links')
     a=p.parse_args()
     print(json.dumps(build(a.full_index,a.registry,a.full_links,a.variant_links,
-                           a.review,a.output),indent=2))
+                           a.review,a.output,a.relationship_links),indent=2))
 
 if __name__=='__main__':main()

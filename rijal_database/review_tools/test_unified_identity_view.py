@@ -11,8 +11,9 @@ class UnifiedIdentityViewTest(unittest.TestCase):
     def test_full_coverage_and_review_bridge(self):
         with tempfile.TemporaryDirectory() as directory:
             paths = [Path(directory) / f'{name}.sqlite' for name in
-                     ('full', 'registry', 'literal', 'variant', 'review', 'output')]
-            full, registry, literal, variant, review, output = paths
+                     ('full', 'registry', 'literal', 'variant', 'review', 'output',
+                      'relationship')]
+            full, registry, literal, variant, review, output, relationship = paths
             with sqlite3.connect(full) as db:
                 db.executescript('''CREATE TABLE release_meta(key TEXT,value TEXT);
                     CREATE TABLE name_groups(id TEXT,name_key TEXT);
@@ -23,7 +24,7 @@ class UnifiedIdentityViewTest(unittest.TestCase):
                 db.execute('INSERT INTO name_groups VALUES (?,?)',('bucket','name'))
                 db.executemany('INSERT INTO name_entries VALUES (?,?,?,?,?,?,?)',
                     [(entry,'bucket','Name','biography_candidate','book','source','page')
-                     for entry in 'abcde'])
+                     for entry in 'abcdef'])
             with sqlite3.connect(registry) as db:
                 db.executescript('''CREATE TABLE registry_meta(key TEXT,value TEXT);
                     CREATE TABLE persons(id TEXT,display_name TEXT,status TEXT);
@@ -49,8 +50,15 @@ class UnifiedIdentityViewTest(unittest.TestCase):
                     CREATE TABLE pair_decisions(left_entry_id TEXT,right_entry_id TEXT,
                       decision TEXT);''')
                 db.execute('INSERT INTO methods VALUES (?,?)',('extraction_sha256','sha'))
-            result=build(*paths)
-            self.assertEqual(result['source_entries'],5)
+            with sqlite3.connect(relationship) as db:
+                db.executescript('''CREATE TABLE metadata(key TEXT,value TEXT);
+                    CREATE TABLE links(left_entry_id TEXT,right_entry_id TEXT,
+                      evidence_kind TEXT);''')
+                db.execute('INSERT INTO metadata VALUES (?,?)',('v1_1_sha256','sha'))
+                db.execute('INSERT INTO links VALUES (?,?,?)',
+                           ('e','f','teachers_3plus_students_3plus'))
+            result=build(full,registry,literal,variant,review,output,relationship)
+            self.assertEqual(result['source_entries'],6)
             self.assertEqual(result['review_bridges'],1)
             with sqlite3.connect(output) as db:
                 rows=dict(db.execute('SELECT entry_id,identity_id FROM entry_identity'))
@@ -58,6 +66,7 @@ class UnifiedIdentityViewTest(unittest.TestCase):
                 self.assertNotEqual(rows['b'],rows['c'])
                 self.assertEqual(rows['c'],rows['d'])
                 self.assertNotEqual(rows['d'],rows['e'])
+                self.assertEqual(rows['e'],rows['f'])
                 self.assertEqual(db.execute('SELECT disposition FROM evidence_links '
                     'WHERE left_entry_id=? AND right_entry_id=?',('b','c')).fetchone()[0],
                     'review_bridge')

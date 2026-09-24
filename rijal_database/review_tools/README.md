@@ -269,3 +269,14 @@ teacher/student strings. Its `both_lists_3plus` priority means both lists
 overlap with at least three names total; the text parser can still mistake
 incidental names for relationships. No overlap is not a different-person
 decision, and no pair here automatically expands a reviewed person.
+
+Run `python -m rijal_database.review_tools.relationship_provisional_links
+full_relationship_gaps.sqlite unified_identity_view.sqlite
+name_inventory.sqlite relationship_links.sqlite` to retain only different-book
+pairs with at least three shared teacher names **and** three shared student
+names, excluding any pair that already touches an identity or has a contrary
+review. Rebuild the unified lookup with its usual arguments plus
+`--relationship-links relationship_links.sqlite`. The added links remain
+reversible provisional clusters; their teacher and student evidence remains in
+the separate relationship-links database. Rebuild the gap queue against the
+new lookup to measure the remaining unresolved name buckets.
