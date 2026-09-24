@@ -29,3 +29,6 @@ for closer reading; a date conflict alone is not an identity decision.
 The [review packet exporter](rijal_database/review_tools/README.md) assembles
 complete source-backed biography spans and statement occurrences as HTML or
 JSON for a selected group.
+The [pair comparison](rijal_database/review_tools/README.md) adds dated
+evidence and literal statement overlap for two selected entries without
+assigning an identity.

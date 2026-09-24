@@ -54,7 +54,7 @@ def make_packet(review_path, kind, group_key, base_path, extraction_path):
                 evidence_end,evidence_quote FROM chronology_records WHERE entry_id=?''',
                 (entry_id,)).fetchone()
             death=None
-            if record:
+            if record and record[0] is not None and record[4]:
                 year,pid,start,end,quote=record
                 source,citation=page(pid)
                 if start is not None and end is not None and source[start:end]!=quote:
@@ -73,9 +73,9 @@ def make_packet(review_path, kind, group_key, base_path, extraction_path):
                     raise ValueError('Biography segment offset invalid: '+entry_id)
                 item['segments'].append({'role':role,'text':source[start:end],
                                          'start':start,'end':end,'citation':citation})
-            for sid,pid,start,end,origin,status,scope,quote in extracted.execute('''
+            for sid,pid,start,end,origin,status,scope,quote,attribution in extracted.execute('''
                 SELECT s.id,s.page_id,s.start_offset,s.end_offset,s.origin,
-                s.subject_status,s.quote_scope,t.quote
+                s.subject_status,s.quote_scope,t.quote,s.attribution_text
                 FROM statements s JOIN statement_texts t ON t.id=s.text_id
                 WHERE s.biography_id=? ORDER BY s.page_id,s.start_offset,s.id''',
                 (entry_id,)):
@@ -85,6 +85,10 @@ def make_packet(review_path, kind, group_key, base_path, extraction_path):
                 item['statements'].append(
                     {'id':sid,'quote':quote,'start':start,'end':end,
                      'origin':origin,'subject_status':status,'scope':scope,
+                     'attribution_text':attribution,
+                     'kinds':[r[0] for r in extracted.execute(
+                         'SELECT DISTINCT kind FROM statement_triggers WHERE statement_id=?',
+                         (sid,))],
                      'citation':citation})
             if len(item['segments'])!=bio[3] or len(item['statements'])!=bio[4]:
                 raise ValueError('V1.1 candidate counts disagree: '+entry_id)

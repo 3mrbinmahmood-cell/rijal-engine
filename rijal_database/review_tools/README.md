@@ -40,6 +40,20 @@ death-year quotation, and statement offsets against the V1 source text before
 writing. V1.1 biography boundaries and extracted statements remain automatic
 candidates; the packet is evidence for review, not an identity ruling.
 
+## Compare two entries
+
+```bash
+python -m rijal_database.review_tools.compare dated review.sqlite GROUP_ID ENTRY_A ENTRY_B rijal_database/rijal.sqlite rijal_database/extraction.sqlite comparison.html
+python -m rijal_database.review_tools.compare name name_inventory.sqlite "NORMALIZED_NAME_KEY" ENTRY_A ENTRY_B rijal_database/rijal.sqlite rijal_database/extraction.sqlite comparison.json
+```
+
+This selects exactly two entries from one review group, displays their full
+packets, marks whether extracted death years agree or differ, and lists any
+**literally identical statement occurrences** with both citations. It also
+shows an already recorded pairwise review decision, if present. Shared
+wording may have been copied between books; absent overlap does not imply
+different people. No comparison signal is an automatic identity decision.
+
 The first full build yielded **1,249 groups and 2,647 entry candidates**.
 Of those entries, V1.1 classified 2,539 as biography candidates, 99 as short
 index candidates, and 9 as cross references. No pairwise decisions or person
