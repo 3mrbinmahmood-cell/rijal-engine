@@ -193,3 +193,16 @@ buckets. A bucket is a search/review convenience, **not** a unique person;
 index and cross-reference candidates especially should not become people
 automatically. The earlier 74,081-entry inventory remains the conservative
 multi-book review subset.
+
+Run `python -m rijal_database.review_tools.full_literal_candidates
+full_name_index.sqlite rijal_database/extraction.sqlite rijal_database/rijal.sqlite
+full_candidates.sqlite` for all biography candidates in repeated name groups of
+2–8 entries spanning at least two books. The queue preserves each shared long
+quotation and distinguishes short-name candidates. Run
+`python -m rijal_database.review_tools.full_provisional_links
+full_name_index.sqlite full_candidates.sqlite name_inventory.sqlite
+full_links.sqlite` to build reversible links for pairs with at least two
+matching long statements. Reviewed `different` and `uncertain` decisions veto
+links, and a transitive different-person conflict aborts the build. Only linked
+entries occur in `full_links.sqlite`; all other entries remain available in
+the full index. These are provisional links, never reviewed person IDs.
