@@ -25,6 +25,21 @@ the source databases.
 quotations for each entry, with page IDs and offsets. Statements are extraction
 candidates, so the reviewer must verify their subject and attribution in context.
 
+## Complete review packet
+
+```bash
+python -m rijal_database.review_tools.packet dated review.sqlite GROUP_ID rijal_database/rijal.sqlite rijal_database/extraction.sqlite dated_packet.html
+python -m rijal_database.review_tools.packet name name_inventory.sqlite "NORMALIZED_NAME_KEY" rijal_database/rijal.sqlite rijal_database/extraction.sqlite name_packet.json
+```
+
+Use `.html` for a readable Arabic comparison or `.json` for all structured
+citations and Unicode offsets. The exporter includes **all** stored biography
+segments and statement occurrences for each candidate in that group, with
+their original wording and source page reference. It verifies heading,
+death-year quotation, and statement offsets against the V1 source text before
+writing. V1.1 biography boundaries and extracted statements remain automatic
+candidates; the packet is evidence for review, not an identity ruling.
+
 The first full build yielded **1,249 groups and 2,647 entry candidates**.
 Of those entries, V1.1 classified 2,539 as biography candidates, 99 as short
 index candidates, and 9 as cross references. No pairwise decisions or person

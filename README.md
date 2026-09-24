@@ -26,3 +26,6 @@ covering 74,081 biography candidates. It supports source-context inspection
 and separately logged pairwise review, with no automatic merge operation.
 Date triage flags 14 longer-name groups with differing extracted death years
 for closer reading; a date conflict alone is not an identity decision.
+The [review packet exporter](rijal_database/review_tools/README.md) assembles
+complete source-backed biography spans and statement occurrences as HTML or
+JSON for a selected group.
