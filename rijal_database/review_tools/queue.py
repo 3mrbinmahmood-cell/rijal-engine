@@ -119,12 +119,47 @@ def decide(db, a, b, decision, reason, reviewer):
             decision=excluded.decision,reason=excluded.reason,reviewer=excluded.reviewer,
             decided_at=CURRENT_TIMESTAMP""",(left,right,decision,reason,reviewer))
 
+def inspect(queue, base_path, extraction_path, group_id, context_chars=400):
+    members = queue.execute(
+        'SELECT entry_id,name_label,evidence_quote,book_title,zip_path,printed_label '
+        'FROM members WHERE group_id=? ORDER BY entry_id',(group_id,)).fetchall()
+    if not members:
+        raise ValueError('Unknown review group')
+    output = []
+    with sqlite3.connect(f'file:{Path(base_path).resolve()}?mode=ro',uri=True) as base, \
+         sqlite3.connect(f'file:{Path(extraction_path).resolve()}?mode=ro',uri=True) as extraction:
+        for entry_id,name,death_quote,book,path,label in members:
+            page = base.execute('''SELECT e.title,e.start_offset,e.end_offset,t.text
+                FROM entries e JOIN pages p ON p.id=e.page_id
+                JOIN page_texts t ON t.id=p.text_id WHERE e.id=?''',(entry_id,)).fetchone()
+            if not page:
+                raise ValueError('Missing V1 source entry')
+            title,start,end,source = page
+            if source[start:end] != title:
+                raise ValueError('Source heading offset mismatch')
+            statements = extraction.execute('''SELECT s.page_id,s.start_offset,s.end_offset,
+                s.origin,s.subject_status,t.quote
+                FROM statements s JOIN statement_texts t ON t.id=s.text_id
+                WHERE s.biography_id=? ORDER BY s.page_id,s.start_offset LIMIT 12''',
+                (entry_id,)).fetchall()
+            output.append({
+                'entry_id':entry_id,'name':name,'book':book,'source_path':path,
+                'printed_page':label,'death_evidence':death_quote,
+                'heading_exact':title,
+                'opening_context':source[max(0,start-context_chars):min(len(source),end+context_chars)],
+                'statements':[dict(zip(('page_id','start_offset','end_offset',
+                                        'origin','subject_status','quote'),s)) for s in statements]
+            })
+    return output
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest='command',required=True)
     p = sub.add_parser('build');p.add_argument('v1');p.add_argument('v1_1');p.add_argument('queue')
     p = sub.add_parser('list');p.add_argument('queue');p.add_argument('--limit',type=int,default=10)
     p = sub.add_parser('show');p.add_argument('queue');p.add_argument('group_id')
+    p = sub.add_parser('inspect');p.add_argument('queue');p.add_argument('v1')
+    p.add_argument('v1_1');p.add_argument('group_id')
     p = sub.add_parser('decide');p.add_argument('queue');p.add_argument('entry_a');p.add_argument('entry_b')
     p.add_argument('decision',choices=('same','different','uncertain'))
     p.add_argument('--reason',required=True);p.add_argument('--reviewer',required=True)
@@ -140,6 +175,8 @@ def main():
                 result=db.execute('SELECT entry_id,name_label,evidence_quote,book_title,zip_path,printed_label,'
                                   'extraction_classification,statement_count '
                                   'FROM members WHERE group_id=? ORDER BY entry_id',(args.group_id,)).fetchall()
+            elif args.command=='inspect':
+                result=inspect(db,args.v1,args.v1_1,args.group_id)
             else:
                 decide(db,args.entry_a,args.entry_b,args.decision,args.reason,args.reviewer)
                 result={'recorded':True}

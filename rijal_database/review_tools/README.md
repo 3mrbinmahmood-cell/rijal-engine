@@ -9,6 +9,7 @@ database or deduplicate biographies.
 python -m rijal_database.review_tools.queue build rijal_database/rijal.sqlite rijal_database/extraction.sqlite review.sqlite
 python -m rijal_database.review_tools.queue list review.sqlite --limit 10
 python -m rijal_database.review_tools.queue show review.sqlite GROUP_ID
+python -m rijal_database.review_tools.queue inspect review.sqlite rijal_database/rijal.sqlite rijal_database/extraction.sqlite GROUP_ID
 python -m rijal_database.review_tools.queue decide review.sqlite ENTRY_A ENTRY_B uncertain --reason "Need fuller context" --reviewer "Omar"
 ```
 
@@ -19,6 +20,10 @@ HTML path, printed page label, death-year quotation and V1.1 classification.
 The separate `review.sqlite` contains pairwise decisions and their history.
 Keep and back up this file: it records work that cannot be reconstructed from
 the source databases.
+
+`inspect` displays the opening source context and up to twelve V1.1 statement
+quotations for each entry, with page IDs and offsets. Statements are extraction
+candidates, so the reviewer must verify their subject and attribution in context.
 
 The first full build yielded **1,249 groups and 2,647 entry candidates**.
 Of those entries, V1.1 classified 2,539 as biography candidates, 99 as short
