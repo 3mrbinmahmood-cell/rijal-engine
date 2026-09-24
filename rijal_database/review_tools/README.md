@@ -280,3 +280,14 @@ review. Rebuild the unified lookup with its usual arguments plus
 reversible provisional clusters; their teacher and student evidence remains in
 the separate relationship-links database. Rebuild the gap queue against the
 new lookup to measure the remaining unresolved name buckets.
+
+Run `python -m rijal_database.review_tools.identity_dates
+unified_identity_view.sqlite name_inventory.sqlite identity_dates.sqlite`
+to attach the available death-year claims to current identities. Every
+automatic and separately reviewed claim retains its exact quote, page and
+entry; conflicting years remain multiple rows. `identity_date_summary`
+shows the smallest common decimal range (ones, tens, hundreds or thousands),
+without replacing the years. This covers dates already extracted in the
+review inventory, not every date in the full corpus. Start the biography
+inspector with `--identity unified_identity_view.sqlite --dates
+identity_dates.sqlite` to display them alongside the source biography.
