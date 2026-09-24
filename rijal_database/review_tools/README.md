@@ -241,3 +241,10 @@ is recorded as `review_bridge` and does not add the other entry to that person.
 Reviewed `different` and `uncertain` pairs veto provisional links. Keep the
 underlying index and source databases alongside the lookup: a provisional
 cluster and an unlinked entry are not established unique people.
+
+To inspect these identities with the existing biography viewer, place the
+generated SQLite lookup beside the V1 and V1.1 databases and run
+`python rijal_database/extraction_server.py --identity
+unified_identity_view.sqlite` from the repository root. The biography panel
+shows reviewed/provisional/unlinked status and lets readers list linked source
+entries. The existing launch script still works without this optional file.

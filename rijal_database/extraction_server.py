@@ -4,13 +4,39 @@ from contextlib import closing
 from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs,urlparse
-from server import Database,fts_query
+try:from .server import Database,fts_query
+except ImportError:from server import Database,fts_query
 BASE=Path(__file__).resolve().parent
 
 class Extraction:
-    def __init__(self,base,extracted):self.base=Path(base);self.path=Path(extracted);self.sources=Database(base)
+    def __init__(self,base,extracted,identity=None):
+        self.base=Path(base);self.path=Path(extracted);self.sources=Database(base)
+        self.identity_path=Path(identity) if identity else None
     def con(self):
         c=sqlite3.connect(self.path.resolve().as_uri()+'?mode=ro',uri=True);c.row_factory=sqlite3.Row;return c
+    def identity_con(self):
+        if not self.identity_path:raise KeyError('Identity lookup is not installed')
+        c=sqlite3.connect(self.identity_path.resolve().as_uri()+'?mode=ro',uri=True)
+        c.row_factory=sqlite3.Row
+        return c
+    def identity_entry(self,id):
+        with closing(self.identity_con()) as c:
+            row=c.execute('''SELECT e.*,i.display_name,i.entry_count
+                FROM entry_identity e JOIN identities i ON i.id=e.identity_id
+                WHERE e.entry_id=?''',(id,)).fetchone()
+            if not row:raise KeyError('Entry not found in identity lookup')
+            return dict(row)
+    def identity_members(self,id,limit=30,offset=0):
+        limit=max(1,min(100,int(limit)));offset=max(0,int(offset))
+        with closing(self.identity_con()) as c:
+            identity=c.execute('SELECT * FROM identities WHERE id=?',(id,)).fetchone()
+            if not identity:raise KeyError('Identity not found')
+            rows=[dict(r) for r in c.execute('''SELECT entry_id,name_label,classification,
+                book_id,source_id,opening_page_id FROM entry_identity
+                WHERE identity_id=? ORDER BY entry_id LIMIT ? OFFSET ?''',
+                (id,limit+1,offset))]
+            return {'identity':dict(identity),'results':rows[:limit],
+                    'has_more':len(rows)>limit,'offset':offset,'limit':limit}
     def stats(self):
         with closing(self.con()) as c:return {'summary':json.loads(c.execute("SELECT value FROM metadata WHERE key='summary'").fetchone()[0]),'method':c.execute("SELECT value FROM metadata WHERE key='method'").fetchone()[0],'read_only':True}
     def citation(self,c,pid):return dict(c.execute('SELECT * FROM citations WHERE page_id=?',(pid,)).fetchone())
@@ -70,6 +96,8 @@ class Handler(BaseHTTPRequestHandler):
             if u.path=='/api/biographies':return self.reply(db.biographies(arg('q'),arg('limit',30),arg('offset',0)))
             if u.path=='/api/statements':return self.reply(db.statements(arg('q'),arg('kind'),arg('origin'),arg('bio'),arg('limit',30),arg('offset',0)))
             if u.path.startswith('/api/biography/'):return self.reply(db.biography(u.path.rsplit('/',1)[-1],arg('offset',0),arg('limit',12)))
+            if u.path.startswith('/api/identity/entry/'):return self.reply(db.identity_entry(u.path.rsplit('/',1)[-1]))
+            if u.path.startswith('/api/identity/members/'):return self.reply(db.identity_members(u.path.rsplit('/',1)[-1],arg('limit',30),arg('offset',0)))
             if u.path.startswith('/api/page/'):return self.reply(db.sources.page(u.path.rsplit('/',1)[-1]))
             files={'/':'index.html','/app.js':'app.js','/style.css':'style.css'}
             if u.path in files:
@@ -81,9 +109,10 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self,*args):pass
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--db',default=str(BASE/'rijal.sqlite'));p.add_argument('--extraction',default=str(BASE/'extraction.sqlite'));p.add_argument('--port',type=int,default=8766);p.add_argument('--open',action='store_true');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--db',default=str(BASE/'rijal.sqlite'));p.add_argument('--extraction',default=str(BASE/'extraction.sqlite'));p.add_argument('--identity',help='Optional unified_identity_view.sqlite');p.add_argument('--port',type=int,default=8766);p.add_argument('--open',action='store_true');a=p.parse_args()
     if not Path(a.db).is_file() or not Path(a.extraction).is_file():p.error('Run START_EXTRACTION_WINDOWS.bat first.')
-    server=ThreadingHTTPServer(('127.0.0.1',a.port),Handler);server.db=Extraction(a.db,a.extraction);url=f'http://127.0.0.1:{a.port}/';print('Biography and statement inspection:',url,flush=True)
+    if a.identity and not Path(a.identity).is_file():p.error('Identity lookup file not found.')
+    server=ThreadingHTTPServer(('127.0.0.1',a.port),Handler);server.db=Extraction(a.db,a.extraction,a.identity);url=f'http://127.0.0.1:{a.port}/';print('Biography and statement inspection:',url,flush=True)
     if a.open:threading.Timer(.4,lambda:webbrowser.open(url)).start()
     try:server.serve_forever()
     except KeyboardInterrupt:pass
