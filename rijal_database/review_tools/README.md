@@ -229,3 +229,15 @@ two long literal statements or overlap in both teacher and student lists with
 at least three shared names. It retains each entry's original `name_key` and
 does not mint a reviewed person ID. The relationship parser is heuristic, so
 these clusters remain provisional until source review.
+
+Run `python -m rijal_database.review_tools.unified_identity_view
+full_name_index.sqlite person_registry.sqlite full_links.sqlite
+variant_links.sqlite name_inventory.sqlite unified_identity_view.sqlite` to
+produce one lookup covering every V1.1 extraction entry. `entry_identity`
+points to a reviewed person, a provisional cluster, or an unlinked entry;
+`identities` gives counts and labels, and `evidence_links` records the reason
+and disposition for each link. A provisional link touching a reviewed person
+is recorded as `review_bridge` and does not add the other entry to that person.
+Reviewed `different` and `uncertain` pairs veto provisional links. Keep the
+underlying index and source databases alongside the lookup: a provisional
+cluster and an unlinked entry are not established unique people.
