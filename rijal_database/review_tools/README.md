@@ -122,7 +122,8 @@ not named Hijri centuries, and they do not settle identity or date accuracy.
 ### Additional reviewed date claims
 
 The original V1 chronology field selects one claim per entry. A reviewer can
-record further claims from the same biography without changing the source DB:
+record further **differing years** from the same biography without changing the
+source DB. A year already recorded for that biography is rejected:
 
 ```sh
 python -m rijal_database.review_tools.name_inventory add-date-claim \

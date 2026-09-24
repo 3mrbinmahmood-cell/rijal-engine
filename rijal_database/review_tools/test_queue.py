@@ -112,7 +112,11 @@ class ReviewTests(unittest.TestCase):
                 db.execute("INSERT INTO date_evidence VALUES ('a','person',207,'سنة سبع ومائتين','page')")
                 with self.assertRaises(ValueError):
                     add_date_claim(db,base,extraction,'a','page',206,'ليس في النص','reviewer','context')
+                with self.assertRaises(ValueError):
+                    add_date_claim(db,base,extraction,'a','page',207,'مات سنة سبع ومائتين','reviewer','same year')
                 add_date_claim(db,base,extraction,'a','page',206,'ذكر 206','reviewer','context')
+                with self.assertRaises(ValueError):
+                    add_date_claim(db,base,extraction,'a','page',206,'ذكر 206','reviewer','same year')
                 add_date_claim(db,base,extraction,'a','page',208,'ذكر 208','reviewer','context')
                 self.assertEqual(db.execute('SELECT years_json,bucket_unit,bucket_start,bucket_end '
                                             'FROM date_grouping').fetchone(),

@@ -185,6 +185,11 @@ def add_date_claim(db, base_path, extraction_path, entry_id, page_id, year,
                       (entry_id,)).fetchone()
     if not member or year<=0 or not quote.strip() or not reviewer.strip() or not note.strip():
         raise ValueError('Member, positive year, exact quote, reviewer and note required')
+    if db.execute('SELECT 1 FROM date_evidence WHERE entry_id=? AND death_year=?',
+                  (entry_id,year)).fetchone() or db.execute(
+                  'SELECT 1 FROM additional_date_claims WHERE entry_id=? AND year=?',
+                  (entry_id,year)).fetchone():
+        raise ValueError('This biography already has that year; add only differing years')
     with sqlite3.connect(f'file:{Path(base_path).resolve()}?mode=ro',uri=True) as base, \
          sqlite3.connect(f'file:{Path(extraction_path).resolve()}?mode=ro',uri=True) as extraction:
         row=base.execute('SELECT t.text FROM pages p JOIN page_texts t ON t.id=p.text_id '
