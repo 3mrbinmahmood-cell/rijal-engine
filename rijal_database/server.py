@@ -65,7 +65,7 @@ class Database:
                 sql='SELECT e.*, bm25(entry_fts) AS rank FROM entry_fts JOIN entries e ON e.rowid=entry_fts.rowid WHERE entry_fts MATCH ?'
                 if mode=='exact': sql+=' AND instr(e.title,?)>0';params.append(q)
                 if book: sql+=' AND EXISTS(SELECT 1 FROM pages p JOIN source_files s ON s.id=p.source_id WHERE p.id=e.page_id AND s.book_id=?)';params.append(book)
-                sql+=' ORDER BY rank,e.rowid LIMIT ? OFFSET ?';params.extend([limit+1,offset])
+                sql+=" ORDER BY CASE WHEN substr(ltrim(e.search_title, '0123456789٠١٢٣٤٥٦٧٨٩-– .()\"«»'),1,length(?))=? THEN 0 ELSE 1 END,rank,e.rowid LIMIT ? OFFSET ?";params.extend([normalize(q),normalize(q),limit+1,offset])
                 rows=c.execute(sql,params).fetchall();results=[]
                 for row in rows[:limit]:
                     r=dict(row);r['citation']=dict(c.execute('SELECT * FROM citations WHERE page_id=?',(r['page_id'],)).fetchone());results.append(r)

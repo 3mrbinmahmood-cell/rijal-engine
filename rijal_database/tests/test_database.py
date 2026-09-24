@@ -75,6 +75,21 @@ class DatabaseTests(unittest.TestCase):
             self.assertEqual(r['status'],'automatic_candidate')
         self.assertEqual(self.sql('SELECT COUNT(*) FROM persons')[0][0],0)
         self.assertEqual(self.sql('SELECT COUNT(*) FROM assertions')[0][0],0)
+    def test_entry_heading_precedes_incidental_name_mention(self):
+        with tempfile.TemporaryDirectory() as td:
+            path=Path(td)/'test.sqlite';archive=Path(td)/'sources.zip'
+            with zipfile.ZipFile(archive,'w') as z:
+                z.writestr('sources/book.htm',source(body='عائشة ذكرت في متن ترجمة محمد بن عطاء.'))
+            import_archive(path,archive)
+            with sqlite3.connect(path) as c:
+                page=c.execute('SELECT id FROM pages ORDER BY ordinal DESC LIMIT 1').fetchone()[0]
+                rowid=c.execute("INSERT INTO entries(id,page_id,start_offset,end_offset,title,search_title,kind) VALUES ('aisha',?,7,13,'عائشة','عائشة','source_heading')",(page,)).lastrowid
+                c.execute('INSERT INTO entry_fts(rowid,search_title) VALUES (?,?)',(rowid,'عائشة'))
+                rival=c.execute("INSERT INTO entries(id,page_id,start_offset,end_offset,title,search_title,kind) VALUES ('rival',?,35,60,'محمد بن عطاء عن عائشة','محمد بن عطاء عن عائشة','source_heading')",(page,)).lastrowid
+                c.execute('INSERT INTO entry_fts(rowid,search_title) VALUES (?,?)',(rival,'محمد بن عطاء عن عائشة'))
+            rows=Database(path,[archive]).search('عائشة',scope='entries')['results']
+            self.assertEqual(rows[0]['id'],'aisha')
+
     def test_changed_archive_preserves_old_version(self):
         path=self.root/'updated.zip'
         with zipfile.ZipFile(path,'w') as z:z.writestr('exports/الكتاب أ.htm',source(body='نص مصحح مختلف عن الأصل.'))
