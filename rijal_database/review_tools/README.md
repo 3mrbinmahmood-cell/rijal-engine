@@ -212,3 +212,12 @@ and same-book repeats. A shared quotation is skipped if it occurs in more than
 20 entries of one name group (`--max-quote-entries` adjusts this cap). The
 candidate still requires an exact normalized name and a long quotation;
 shorter and common names remain flagged for further context checks.
+
+Run `python -m rijal_database.review_tools.name_variants
+full_name_index.sqlite rijal_database/extraction.sqlite rijal_database/rijal.sqlite
+variants.sqlite` to find conservative cross-spelling name families. It handles
+kunya case forms (`أبو/أبي/أبا`), select hamza/letter variants, `ة/ه`, and
+`عبد الله/عبدالله` while retaining the original Arabic labels. The result
+keeps both the verbatim-statement and teacher/student overlap queues. A
+variant family or shared relationship is a clue, **not** a person merge; the
+heuristic can still pick up incidental names in a biography.
