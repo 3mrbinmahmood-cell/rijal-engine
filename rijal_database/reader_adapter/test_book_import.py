@@ -21,6 +21,10 @@ def test(old_path,new_path):
     with ZipFile(new_path) as z:
         toc=json.loads(z.read('toc.js').decode().removeprefix('window.SHAMELA_TOC=').rstrip(';'))
         assert len(toc)==len(after)
+        for book in toc[6:]:
+            assert book['volumes'][0]['page']==1
+            assert not book['volumes'][0]['title'].isnumeric()
+            assert book['entries'] and all(e['page']>0 for e in book['entries'])
         assert z.testzip() is None
     print('PASS: 10 books, six original books intact, mixed grades preserved on Abu Dawud p.9')
 if __name__=='__main__':test(sys.argv[1],sys.argv[2])

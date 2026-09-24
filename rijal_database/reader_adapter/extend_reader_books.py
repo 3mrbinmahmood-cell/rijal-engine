@@ -33,12 +33,14 @@ def extend(reader,source,output):
             if title in existing:continue
             pages=[];entries=[];volumes=[];last_vol=None
             for name in sorted(files):
+                file_first=len(pages)
                 elements,markers,encoding,meta,fallback=parse_source(archive.read(name))
                 if fallback:raise ValueError('No PageText boundaries: '+name)
                 for element in elements:
                     detail=extract_page(element);text=detail['text'];index=len(pages)
                     label=clean(detail['label'] or '') or f'{Path(name).stem}:{index+1}'
                     pages.append({'n':label,'text':text})
+                    if index==file_first:continue  # Shamela's first page is file metadata, not a volume.
                     vol=clean(detail['part'] or Path(name).stem)
                     if vol!=last_vol:volumes.append({'title':vol,'page':index,'source':name});last_vol=vol
                     for start,end,_ in detail['titles']:
@@ -53,7 +55,7 @@ def extend(reader,source,output):
         replacements={'data.js':('window.SHAMELA_DATA='+json.dumps(data,ensure_ascii=False,separators=(',',':'))+';').encode(),
                       'toc.js':('window.SHAMELA_TOC='+json.dumps(toc,ensure_ascii=False,separators=(',',':'))+';').encode(),
                       'BOOK_IMPORT_AUDIT.json':json.dumps({'source_archive':source.name,'existing_books_preserved':len(existing),'added':added},ensure_ascii=False,indent=2).encode()}
-        replacements['index.html']=old.read('index.html').replace(b'V0.6.4',b'V0.6.5')
+        replacements['index.html']=old.read('index.html').replace(b'V0.6.4',b'V0.6.6')
         with ZipFile(output,'w',ZIP_DEFLATED,compresslevel=6) as target:
             for member in old.infolist():
                 if member.is_dir():target.writestr(member,b'');continue
