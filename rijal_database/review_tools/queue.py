@@ -125,6 +125,10 @@ def inspect(queue, base_path, extraction_path, group_id, context_chars=400):
         'FROM members WHERE group_id=? ORDER BY entry_id',(group_id,)).fetchall()
     if not members:
         raise ValueError('Unknown review group')
+    return inspect_entries(members,base_path,extraction_path,context_chars)
+
+def inspect_entries(members, base_path, extraction_path, context_chars=400):
+    """Render supplied source-backed member tuples without changing either DB."""
     output = []
     with sqlite3.connect(f'file:{Path(base_path).resolve()}?mode=ro',uri=True) as base, \
          sqlite3.connect(f'file:{Path(extraction_path).resolve()}?mode=ro',uri=True) as extraction:

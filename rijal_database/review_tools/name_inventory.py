@@ -1,12 +1,13 @@
 """Conservative exact-name candidate inventory over all V1.1 biographies.
 
-This inventory is lower confidence than the chronology queue. It contains no
-identity assertions, decisions, or merges.
+This inventory is lower confidence than the chronology queue. Review decisions
+are recorded separately; no identity merges are made.
 """
 import argparse
 import json
 from pathlib import Path
 import sqlite3
+from .queue import inspect_entries
 
 SCHEMA = """
 PRAGMA foreign_keys=ON;
@@ -21,6 +22,19 @@ CREATE TABLE IF NOT EXISTS name_members(
  book_id TEXT NOT NULL,source_id TEXT NOT NULL,
  classification TEXT NOT NULL,statement_count INTEGER NOT NULL);
 CREATE INDEX IF NOT EXISTS name_members_group ON name_members(name_key);
+CREATE TABLE IF NOT EXISTS pair_decisions(
+ left_entry_id TEXT NOT NULL REFERENCES name_members(entry_id),
+ right_entry_id TEXT NOT NULL REFERENCES name_members(entry_id),
+ decision TEXT NOT NULL CHECK(decision IN ('same','different','uncertain')),
+ reason TEXT NOT NULL CHECK(length(trim(reason))>0),
+ reviewer TEXT NOT NULL CHECK(length(trim(reviewer))>0),
+ decided_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY(left_entry_id,right_entry_id),
+ CHECK(left_entry_id<right_entry_id));
+CREATE TABLE IF NOT EXISTS decision_history(
+ id INTEGER PRIMARY KEY,left_entry_id TEXT NOT NULL,right_entry_id TEXT NOT NULL,
+ decision TEXT NOT NULL,reason TEXT NOT NULL,reviewer TEXT NOT NULL,
+ recorded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
 """
 
 GROUP_SQL = """
@@ -68,17 +82,75 @@ def build(extraction_path, inventory_path):
                 raise ValueError('Candidate inventory count mismatch')
             if target.execute('SELECT count(*) FROM name_groups').fetchone()[0]!=len(groups):
                 raise ValueError('Existing inventory differs; use a new output path')
-        return {'groups':len(groups),'entries':count,'identity_merges':0}
+        return {'groups':len(groups),'entries':count,
+                'decisions':target.execute('SELECT count(*) FROM pair_decisions').fetchone()[0],
+                'identity_merges':0}
     finally:
         source.close()
         target.close()
 
+def decide(db, a, b, decision, reason, reviewer):
+    if a==b or decision not in ('same','different','uncertain') or not reason.strip() or not reviewer.strip():
+        raise ValueError('Two different entries, valid decision, reason and reviewer are required')
+    left,right=sorted((a,b))
+    rows=db.execute('SELECT entry_id,name_key FROM name_members WHERE entry_id IN (?,?)',
+                    (left,right)).fetchall()
+    if len(rows)!=2 or rows[0][1]!=rows[1][1]:
+        raise ValueError('Both entries must occur in the same name group')
+    with db:
+        db.execute('INSERT INTO decision_history(left_entry_id,right_entry_id,decision,reason,reviewer) VALUES (?,?,?,?,?)',
+                   (left,right,decision,reason,reviewer))
+        db.execute("""INSERT INTO pair_decisions(left_entry_id,right_entry_id,decision,reason,reviewer)
+            VALUES (?,?,?,?,?) ON CONFLICT(left_entry_id,right_entry_id) DO UPDATE SET
+            decision=excluded.decision,reason=excluded.reason,reviewer=excluded.reviewer,
+            decided_at=CURRENT_TIMESTAMP""",(left,right,decision,reason,reviewer))
+
+def inspect(db, base_path, extraction_path, name_key):
+    ids=db.execute('SELECT entry_id,name_label FROM name_members WHERE name_key=? ORDER BY entry_id',
+                   (name_key,)).fetchall()
+    if not ids:
+        raise ValueError('Unknown name group')
+    members=[]
+    with sqlite3.connect(f'file:{Path(base_path).resolve()}?mode=ro',uri=True) as base:
+        for entry_id,name in ids:
+            citation=base.execute("""SELECT r.evidence_quote,b.title,s.zip_path,p.printed_label
+                FROM entries e JOIN pages p ON p.id=e.page_id
+                JOIN source_files s ON s.id=p.source_id JOIN books b ON b.id=s.book_id
+                LEFT JOIN chronology_records r ON r.entry_id=e.id
+                WHERE e.id=?""",(entry_id,)).fetchone()
+            if not citation:
+                raise ValueError('Missing V1 source entry')
+            members.append((entry_id,name,*citation))
+    return inspect_entries(members,base_path,extraction_path)
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('extraction_database')
-    parser.add_argument('inventory_database')
+    commands=parser.add_subparsers(dest='command',required=True)
+    p=commands.add_parser('build');p.add_argument('extraction_database');p.add_argument('inventory_database')
+    p=commands.add_parser('list');p.add_argument('inventory_database');p.add_argument('--limit',type=int,default=10)
+    p=commands.add_parser('inspect');p.add_argument('inventory_database');p.add_argument('v1')
+    p.add_argument('v1_1');p.add_argument('name_key')
+    p=commands.add_parser('decide');p.add_argument('inventory_database')
+    p.add_argument('entry_a');p.add_argument('entry_b')
+    p.add_argument('decision',choices=('same','different','uncertain'))
+    p.add_argument('--reason',required=True);p.add_argument('--reviewer',required=True)
     args=parser.parse_args()
-    print(json.dumps(build(args.extraction_database,args.inventory_database),indent=2))
+    if args.command=='build':
+        result=build(args.extraction_database,args.inventory_database)
+    else:
+        with sqlite3.connect(args.inventory_database) as db:
+            db.execute('PRAGMA foreign_keys=ON')
+            db.executescript(SCHEMA)
+            if args.command=='list':
+                result=db.execute('SELECT name_key,entries,books FROM name_groups '
+                                  'ORDER BY entries DESC,name_key LIMIT ?',
+                                  (max(1,min(args.limit,100)),)).fetchall()
+            elif args.command=='inspect':
+                result=inspect(db,args.v1,args.v1_1,args.name_key)
+            else:
+                decide(db,args.entry_a,args.entry_b,args.decision,args.reason,args.reviewer)
+                result={'recorded':True}
+    print(json.dumps(result,ensure_ascii=False,indent=2))
 
 if __name__=='__main__':
     main()

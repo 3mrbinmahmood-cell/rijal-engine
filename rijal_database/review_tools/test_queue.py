@@ -3,6 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from rijal_database.review_tools.queue import connect, decide
+from rijal_database.review_tools.name_inventory import SCHEMA as NAME_SCHEMA, decide as decide_name
 
 class ReviewTests(unittest.TestCase):
     def test_pairwise_decision_history_and_group_guard(self):
@@ -25,6 +26,20 @@ class ReviewTests(unittest.TestCase):
                 self.assertEqual(db.execute('SELECT decision FROM pair_decisions').fetchone()[0],'different')
                 self.assertEqual(db.execute('SELECT count(*) FROM decision_history').fetchone()[0],2)
                 self.assertEqual(db.execute('SELECT count(*) FROM groups').fetchone()[0],2)
+
+    def test_name_inventory_requires_same_group_and_keeps_history(self):
+        with sqlite3.connect(':memory:') as db:
+            db.executescript(NAME_SCHEMA)
+            db.executemany('INSERT INTO name_groups VALUES (?,?,?)',[('name',2,2),('other',2,2)])
+            for entry,key in [('a','name'),('b','name'),('c','other')]:
+                db.execute('INSERT INTO name_members VALUES (?,?,?,?,?,?,?,?)',
+                           (entry,key,key,'page','book','source','biography_candidate',0))
+            with self.assertRaises(ValueError):
+                decide_name(db,'a','c','same','looks similar','reviewer')
+            decide_name(db,'b','a','uncertain','Compare patronymics','reviewer')
+            decide_name(db,'a','b','different','Different teachers','reviewer')
+            self.assertEqual(db.execute('SELECT decision FROM pair_decisions').fetchone()[0],'different')
+            self.assertEqual(db.execute('SELECT count(*) FROM decision_history').fetchone()[0],2)
 
 if __name__=='__main__':
     unittest.main()

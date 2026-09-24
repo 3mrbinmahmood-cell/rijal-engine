@@ -34,13 +34,17 @@ years; entries without dates and differing names need later review methods.
 ## Broader name inventory
 
 ```bash
-python -m rijal_database.review_tools.name_inventory rijal_database/extraction.sqlite name_inventory.sqlite
+python -m rijal_database.review_tools.name_inventory build rijal_database/extraction.sqlite name_inventory.sqlite
+python -m rijal_database.review_tools.name_inventory list name_inventory.sqlite --limit 10
+python -m rijal_database.review_tools.name_inventory inspect name_inventory.sqlite rijal_database/rijal.sqlite rijal_database/extraction.sqlite "ابراهيم بن ابي موسي الاشعري"
+python -m rijal_database.review_tools.name_inventory decide name_inventory.sqlite ENTRY_A ENTRY_B uncertain --reason "Compare teachers and dates" --reviewer "Omar"
 ```
 
 The full V1.1 scan yielded **25,424 longer exact-name groups containing
 74,081 biography candidates** from at least two books. This lower-confidence
 inventory requires at least five words, 25 characters, and 2–8 occurrences
 per normalized name. It can include homonyms, repeated editions, and entries
-already in the chronology queue. It has no approval or merge operation.
+already in the chronology queue. Pairwise review decisions and their history
+are stored in this separate inventory database; there is no merge operation.
 Reviewers should compare source text, patronymics, teachers, students, places
 and conflicting dates before promoting any pair for a decision.

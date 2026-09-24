@@ -22,4 +22,5 @@ The first [identity review queue](rijal_database/review_tools/README.md) is
 available: it proposes 1,249 chronology groups containing 2,647 source
 entries for pairwise human review. No identities have been merged.
 The broader long-name inventory contains 25,424 lower-confidence groups
-covering 74,081 biography candidates; it has no automatic merge operation.
+covering 74,081 biography candidates. It supports source-context inspection
+and separately logged pairwise review, with no automatic merge operation.
