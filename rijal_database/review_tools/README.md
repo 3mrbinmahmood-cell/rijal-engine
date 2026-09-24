@@ -165,3 +165,12 @@ if a transitive component contradicts a reviewed `different` decision. Each
 source entry remains present, and no reviewed person ID is minted. Preserve
 the reviewed registry for final identity and treat this view as an accelerated
 starting point for finding duplicates.
+
+Run `python -m rijal_database.review_tools.relationship_candidates
+name_inventory.sqlite rijal_database/extraction.sqlite rijal_database/rijal.sqlite
+relationships.sqlite` to rank name pairs by overlapping teacher and student
+names in their opening biographies. The output stores each parsed name and
+source page. `both_lists_3plus` requires at least one overlap in each direction
+and at least three names total. This is a **heuristic review queue**: it can
+capture incidental mentions or miss names with variant spelling. It makes no
+identity links; absent overlap is not evidence of separate people.
