@@ -45,6 +45,14 @@ CREATE TABLE IF NOT EXISTS date_evidence(
  name_key TEXT NOT NULL REFERENCES name_groups(name_key),
  death_year INTEGER,evidence_quote TEXT,evidence_page_id TEXT NOT NULL);
 CREATE INDEX IF NOT EXISTS date_evidence_group ON date_evidence(name_key);
+CREATE TABLE IF NOT EXISTS additional_date_claims(
+ entry_id TEXT NOT NULL REFERENCES name_members(entry_id),
+ name_key TEXT NOT NULL REFERENCES name_groups(name_key),
+ year INTEGER NOT NULL CHECK(year>0),page_id TEXT NOT NULL,
+ start_offset INTEGER NOT NULL,end_offset INTEGER NOT NULL,
+ exact_quote TEXT NOT NULL,reviewer TEXT NOT NULL,note TEXT NOT NULL,
+ PRIMARY KEY(entry_id,page_id,start_offset,end_offset,year));
+CREATE INDEX IF NOT EXISTS additional_date_claims_group ON additional_date_claims(name_key);
 CREATE TABLE IF NOT EXISTS date_grouping(
  name_key TEXT PRIMARY KEY REFERENCES name_groups(name_key),
  years_json TEXT NOT NULL,bucket_unit INTEGER,
@@ -150,6 +158,57 @@ def common_bucket(years):
             return unit,start,start+unit-1
     return None,None,None
 
+def refresh_date_grouping(db, name_key):
+    years={r[0] for r in db.execute(
+        'SELECT death_year FROM date_evidence WHERE name_key=? AND death_year IS NOT NULL',
+        (name_key,))}
+    years.update(r[0] for r in db.execute(
+        'SELECT year FROM additional_date_claims WHERE name_key=?',(name_key,)))
+    db.execute('''INSERT INTO date_grouping(name_key,years_json,bucket_unit,bucket_start,bucket_end)
+        VALUES (?,?,?,?,?) ON CONFLICT(name_key) DO UPDATE SET
+        years_json=excluded.years_json,bucket_unit=excluded.bucket_unit,
+        bucket_start=excluded.bucket_start,bucket_end=excluded.bucket_end''',
+        (name_key,json.dumps(sorted(years)),*common_bucket(years)))
+
+def add_date_claim(db, base_path, extraction_path, entry_id, page_id, year,
+                   quote, reviewer, note):
+    """Add a manually reviewed claim only when its exact quote is in the biography."""
+    base_sha=json.loads((Path(base_path).parent/'data'/'PAYLOAD.json').read_text())['database_sha256']
+    extraction_manifest=json.loads(
+        (Path(extraction_path).parent/'extraction_data'/'PAYLOAD.json').read_text())
+    if extraction_manifest['base_sha256']!=base_sha or any(
+        db.execute('SELECT value FROM methods WHERE key=?',(key,)).fetchone()!=(value,)
+        for key,value in (('base_sha256',base_sha),
+                          ('extraction_sha256',extraction_manifest['database_sha256']))):
+        raise ValueError('Review inventory and source releases do not match')
+    member=db.execute('SELECT name_key FROM name_members WHERE entry_id=?',
+                      (entry_id,)).fetchone()
+    if not member or year<=0 or not quote.strip() or not reviewer.strip() or not note.strip():
+        raise ValueError('Member, positive year, exact quote, reviewer and note required')
+    with sqlite3.connect(f'file:{Path(base_path).resolve()}?mode=ro',uri=True) as base, \
+         sqlite3.connect(f'file:{Path(extraction_path).resolve()}?mode=ro',uri=True) as extraction:
+        row=base.execute('SELECT t.text FROM pages p JOIN page_texts t ON t.id=p.text_id '
+                         'WHERE p.id=?',(page_id,)).fetchone()
+        if not row:
+            raise ValueError('Unknown source page')
+        spans=extraction.execute('''SELECT start_offset,end_offset FROM biography_segments
+            WHERE biography_id=? AND page_id=?''',(entry_id,page_id)).fetchall()
+        offsets=[]
+        for start,end in spans:
+            pos=row[0].find(quote,start,end)
+            while pos>=0:
+                offsets.append((pos,pos+len(quote)))
+                pos=row[0].find(quote,pos+1,end)
+        if len(set(offsets))!=1:
+            raise ValueError('Quote must occur exactly once within this biography on the page')
+    start,end=offsets[0]
+    with db:
+        db.execute('''INSERT INTO additional_date_claims VALUES (?,?,?,?,?,?,?,?,?)''',
+                   (entry_id,member[0],year,page_id,start,end,quote,reviewer,note))
+        refresh_date_grouping(db,member[0])
+    return {'entry_id':entry_id,'year':year,'page_id':page_id,
+            'start_offset':start,'end_offset':end}
+
 def triage(db, base_path, extraction_path):
     base_manifest=json.loads((Path(base_path).parent/'data'/'PAYLOAD.json').read_text())
     extraction_manifest=json.loads(
@@ -188,6 +247,8 @@ def triage(db, base_path, extraction_path):
             for key,year in db.execute(
                     'SELECT name_key,death_year FROM date_evidence WHERE death_year IS NOT NULL'):
                 grouped.setdefault(key,set()).add(year)
+            for key,year in db.execute('SELECT name_key,year FROM additional_date_claims'):
+                grouped.setdefault(key,set()).add(year)
             keys=[r[0] for r in db.execute('SELECT name_key FROM name_groups')]
             db.executemany("""INSERT INTO date_grouping(
                 name_key,years_json,bucket_unit,bucket_start,bucket_end)
@@ -218,6 +279,10 @@ def main():
     p=commands.add_parser('triage');p.add_argument('inventory_database');p.add_argument('v1')
     p.add_argument('v1_1')
     p=commands.add_parser('dates');p.add_argument('inventory_database');p.add_argument('name_key')
+    p=commands.add_parser('add-date-claim');p.add_argument('inventory_database')
+    p.add_argument('v1');p.add_argument('v1_1');p.add_argument('entry_id');p.add_argument('page_id')
+    p.add_argument('year',type=int);p.add_argument('--quote',required=True)
+    p.add_argument('--reviewer',required=True);p.add_argument('--note',required=True)
     p=commands.add_parser('decide');p.add_argument('inventory_database')
     p.add_argument('entry_a');p.add_argument('entry_b')
     p.add_argument('decision',choices=('same','different','uncertain'))
@@ -245,6 +310,9 @@ def main():
                 result=inspect(db,args.v1,args.v1_1,args.name_key)
             elif args.command=='triage':
                 result=triage(db,args.v1,args.v1_1)
+            elif args.command=='add-date-claim':
+                result=add_date_claim(db,args.v1,args.v1_1,args.entry_id,args.page_id,
+                                      args.year,args.quote,args.reviewer,args.note)
             elif args.command=='dates':
                 group=db.execute('SELECT years_json,bucket_unit,bucket_start,bucket_end '
                                  'FROM date_grouping WHERE name_key=?',(args.name_key,)).fetchone()
@@ -258,7 +326,13 @@ def main():
                         'bucket_end':group[3],
                         'source_evidence':[dict(zip(
                             ('entry_id','extracted_year','exact_quote','page_id'),r))
-                            for r in quotes]}
+                            for r in quotes],
+                        'additional_claims':[dict(zip(
+                            ('entry_id','year','page_id','start_offset','end_offset',
+                             'exact_quote','reviewer','note'),r)) for r in db.execute(
+                            '''SELECT entry_id,year,page_id,start_offset,end_offset,
+                                exact_quote,reviewer,note FROM additional_date_claims
+                                WHERE name_key=? ORDER BY entry_id,year''',(args.name_key,))]}
             else:
                 decide(db,args.entry_a,args.entry_b,args.decision,args.reason,args.reviewer)
                 result={'recorded':True}

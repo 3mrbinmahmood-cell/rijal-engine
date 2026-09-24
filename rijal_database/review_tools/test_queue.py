@@ -4,7 +4,8 @@ import unittest
 from pathlib import Path
 from rijal_database.review_tools.queue import connect, decide
 from rijal_database.review_tools.name_inventory import (
-    SCHEMA as NAME_SCHEMA, decide as decide_name, triage, common_bucket)
+    SCHEMA as NAME_SCHEMA, decide as decide_name, triage, common_bucket,
+    add_date_claim)
 import json
 
 class ReviewTests(unittest.TestCase):
@@ -82,6 +83,41 @@ class ReviewTests(unittest.TestCase):
                 self.assertEqual(db.execute(
                     "SELECT count(*) FROM date_evidence WHERE name_key='conflict'").fetchone()[0],2)
                 self.assertEqual(db.execute('SELECT count(*) FROM pair_decisions').fetchone()[0],0)
+
+    def test_additional_claim_requires_exact_biography_span_and_updates_bucket(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            (root/'data').mkdir();(root/'extraction_data').mkdir()
+            (root/'data'/'PAYLOAD.json').write_text(json.dumps({'database_sha256':'base'}))
+            (root/'extraction_data'/'PAYLOAD.json').write_text(json.dumps(
+                {'base_sha256':'base','database_sha256':'extract'}))
+            base=root/'v1.sqlite'; extraction=root/'v1_1.sqlite'
+            page='ذكر 206 ثم مات سنة سبع ومائتين وذكر 208 في الخبر التالي'
+            with sqlite3.connect(base) as db:
+                db.executescript('CREATE TABLE pages(id TEXT,text_id INTEGER);'
+                                 'CREATE TABLE page_texts(id INTEGER,text TEXT);')
+                db.execute('INSERT INTO pages VALUES (?,?)',('page',1))
+                db.execute('INSERT INTO page_texts VALUES (?,?)',(1,page))
+            with sqlite3.connect(extraction) as db:
+                db.execute('CREATE TABLE biography_segments('
+                           'biography_id TEXT,page_id TEXT,start_offset INTEGER,end_offset INTEGER)')
+                db.execute('INSERT INTO biography_segments VALUES (?,?,?,?)',
+                           ('a','page',0,len(page)))
+            with sqlite3.connect(root/'review.sqlite') as db:
+                db.executescript(NAME_SCHEMA)
+                db.executemany('INSERT INTO methods VALUES (?,?)',
+                               [('base_sha256','base'),('extraction_sha256','extract')])
+                db.execute("INSERT INTO name_groups VALUES ('person',2,2)")
+                db.execute("INSERT INTO name_members VALUES ('a','person','person','page','book','source','biography_candidate',0)")
+                db.execute("INSERT INTO date_evidence VALUES ('a','person',207,'سنة سبع ومائتين','page')")
+                with self.assertRaises(ValueError):
+                    add_date_claim(db,base,extraction,'a','page',206,'ليس في النص','reviewer','context')
+                add_date_claim(db,base,extraction,'a','page',206,'ذكر 206','reviewer','context')
+                add_date_claim(db,base,extraction,'a','page',208,'ذكر 208','reviewer','context')
+                self.assertEqual(db.execute('SELECT years_json,bucket_unit,bucket_start,bucket_end '
+                                            'FROM date_grouping').fetchone(),
+                                 ('[206, 207, 208]',10,200,209))
+                self.assertEqual(db.execute('SELECT count(*) FROM additional_date_claims').fetchone()[0],2)
 
 if __name__=='__main__':
     unittest.main()

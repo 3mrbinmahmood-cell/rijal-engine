@@ -118,3 +118,26 @@ numeric placeholder: exact year (unit 1), 10-year range, 100-year range, then
 no shared placeholder in these four levels. Undated or ambiguous textual
 reports remain quoted with a null numeric year. These are decimal ranges,
 not named Hijri centuries, and they do not settle identity or date accuracy.
+
+### Additional reviewed date claims
+
+The original V1 chronology field selects one claim per entry. A reviewer can
+record further claims from the same biography without changing the source DB:
+
+```sh
+python -m rijal_database.review_tools.name_inventory add-date-claim \
+  name_inventory.sqlite rijal_database/rijal.sqlite rijal_database/extraction.sqlite \
+  ENTRY_ID PAGE_ID 208 --quote 'EXACT SOURCE WORDING' \
+  --reviewer 'Reviewer name' --note 'How the contextual year was read'
+python -m rijal_database.review_tools.name_inventory dates \
+  name_inventory.sqlite 'NORMALIZED NAME KEY'
+```
+
+The quote must occur exactly once within that entry's biography segment on
+the specified source page. The inventory checks the V1/V1.1 release bindings,
+stores the original page offsets and attribution note, and includes additional
+reviewed years in the smallest shared decimal bucket. It does not automatically
+interpret every date phrase. Editorial footnotes outside a biography segment
+need separate review evidence; they cannot be silently added as a biography
+claim. Very broad buckets such as 0–999 AH are mechanical groupings, not useful
+historical estimates.
