@@ -72,10 +72,29 @@ def ensure_database(base=BASE):
     print('Database verified and ready. Future launches skip unpacking.',flush=True)
     return target
 
+def optional_overlay_args(base=BASE, argv=None):
+    """Enable exact-name read-only overlays beside the installed V1 package."""
+    base=Path(base);argv=list(sys.argv[1:] if argv is None else argv)
+    if '--identity' in argv:return argv
+    def find(name):
+        return next((p for p in (base/name,base.parent/name) if p.is_file()),None)
+    identity=find('unified_identity_view.sqlite')
+    if not identity:
+        print('Identity overlay not found. Base text search remains available. Place unified_identity_view.sqlite beside launch.py to enable identity.',flush=True)
+        return argv
+    argv.extend(['--identity',str(identity)])
+    for option,name in (('--dates','identity_dates.sqlite'),('--graph','relationship_graph.sqlite')):
+        if option not in argv:
+            found=find(name)
+            if found:argv.extend([option,str(found)])
+    print('Rijal overlays enabled: identity'+(', dates' if '--dates' in argv else '')+(', graph' if '--graph' in argv else ''),flush=True)
+    return argv
+
 def main():
     if '--db' not in sys.argv:
         try:ensure_database()
         except (RuntimeError,OSError,EOFError) as e:print(str(e),file=sys.stderr);sys.exit(1)
+    sys.argv=[sys.argv[0],*optional_overlay_args()]
     import server
     server.main()
 
