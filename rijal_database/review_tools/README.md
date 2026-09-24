@@ -258,3 +258,14 @@ merges: a shared name or kunya can describe different contemporaries. Inspect
 the original biographies, teachers, students, region, and dates before a
 review decision. The index and identity databases remain the source for each
 bucket's individual entries and citations.
+
+Run `python -m rijal_database.review_tools.full_relationship_gaps
+identity_gap_queue.sqlite unified_identity_view.sqlite
+rijal_database/extraction.sqlite rijal_database/rijal.sqlite
+full_relationship_gaps.sqlite` to compare teacher and student names for
+unresolved, longer cross-book names (up to 20 entries per bucket by default).
+The output records entry IDs, distinct current identities, books, and shared
+teacher/student strings. Its `both_lists_3plus` priority means both lists
+overlap with at least three names total; the text parser can still mistake
+incidental names for relationships. No overlap is not a different-person
+decision, and no pair here automatically expands a reviewed person.
