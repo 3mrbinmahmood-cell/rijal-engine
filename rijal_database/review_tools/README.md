@@ -206,3 +206,9 @@ matching long statements. Reviewed `different` and `uncertain` decisions veto
 links, and a transitive different-person conflict aborts the build. Only linked
 entries occur in `full_links.sqlite`; all other entries remain available in
 the full index. These are provisional links, never reviewed person IDs.
+
+Pass `--all-groups` to `full_literal_candidates` to include larger name groups
+and same-book repeats. A shared quotation is skipped if it occurs in more than
+20 entries of one name group (`--max-quote-entries` adjusts this cap). The
+candidate still requires an exact normalized name and a long quotation;
+shorter and common names remain flagged for further context checks.

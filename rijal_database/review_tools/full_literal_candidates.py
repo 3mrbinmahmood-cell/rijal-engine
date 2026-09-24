@@ -24,7 +24,8 @@ CREATE TABLE evidence(
  PRIMARY KEY(left_entry_id,right_entry_id,statement_text_id));
 """
 
-def build(full_index_path,extraction_path,base_path,output_path):
+def build(full_index_path,extraction_path,base_path,output_path,
+          all_groups=False,max_quote_entries=20):
     if Path(output_path).exists():
         raise ValueError('Use a new output path to preserve earlier output')
     full=sqlite3.connect(f'file:{Path(full_index_path).resolve()}?mode=ro',uri=True)
@@ -41,17 +42,22 @@ def build(full_index_path,extraction_path,base_path,output_path):
                        (f'file:{Path(full_index_path).resolve()}?mode=ro',))
         source.execute('ATTACH DATABASE ? AS base',
                        (f'file:{Path(base_path).resolve()}?mode=ro',))
+        selection=('g.entry_count>=2' if all_groups else
+                   'g.entry_count BETWEEN 2 AND 8 AND g.distinct_books>=2')
         rows=source.execute('''SELECT g.name_key,s.text_id,e.entry_id,t.quote
             FROM idx.name_groups g JOIN idx.name_entries e ON e.name_group_id=g.id
             JOIN statements s ON s.biography_id=e.entry_id
             JOIN statement_texts t ON t.id=s.text_id
-            WHERE g.entry_count BETWEEN 2 AND 8 AND g.distinct_books>=2
-            AND g.biography_count>=2 AND e.classification='biography_candidate'
+            WHERE '''+selection+''' AND g.biography_count>=2
+            AND e.classification='biography_candidate'
             AND length(t.quote)>=60
             ORDER BY g.name_key,s.text_id''')
-        evidence=defaultdict(dict);current=None;members=set();wording=''
+        evidence=defaultdict(dict);current=None;members=set();wording='';skipped=0
         def flush():
-            if len(members)>1:
+            nonlocal skipped
+            if len(members)>max_quote_entries:
+                skipped+=1
+            elif len(members)>1:
                 for a,b in itertools.combinations(sorted(members),2):
                     evidence[(a,b)][current[1]]=wording
         for key,text_id,entry_id,quote in rows:
@@ -78,12 +84,15 @@ def build(full_index_path,extraction_path,base_path,output_path):
             output.executemany('INSERT INTO metadata VALUES (?,?)',[
                 ('v1_sha256',base_manifest['database_sha256']),
                 ('v1_1_sha256',manifest['database_sha256']),
-                ('selection','biography_candidate, name group 2-8 entries in >=2 books, long literal >=60 chars')])
+                ('selection',('all repeated biography names' if all_groups else
+                    'biography_candidate, name group 2-8 entries in >=2 books')+
+                    ', long literal >=60 chars, max quote fanout '+str(max_quote_entries))])
             output.executemany('INSERT INTO pairs VALUES (?,?,?,?,?,?,?)',pairs)
             output.executemany('INSERT INTO evidence VALUES (?,?,?,?)',quotes)
         return {'pairs':len(pairs),'priority_counts':dict(output.execute(
             'SELECT priority,count(*) FROM pairs GROUP BY priority')),
             'entries_in_pairs':len({e for a,b in evidence for e in (a,b)}),
+            'shared_quotes_skipped_for_fanout':skipped,
             'identity_merges':0}
     finally:
         full.close();source.close();output.close()
@@ -91,7 +100,12 @@ def build(full_index_path,extraction_path,base_path,output_path):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for arg in ('full_index','extraction','v1','output'):p.add_argument(arg)
+    p.add_argument('--all-groups',action='store_true',
+                   help='Include same-book repeats and larger name groups')
+    p.add_argument('--max-quote-entries',type=int,default=20)
     a=p.parse_args()
-    print(json.dumps(build(a.full_index,a.extraction,a.v1,a.output),indent=2))
+    if a.max_quote_entries<2:raise ValueError('Quote fanout must be at least two')
+    print(json.dumps(build(a.full_index,a.extraction,a.v1,a.output,
+                           a.all_groups,a.max_quote_entries),indent=2))
 
 if __name__=='__main__':main()
