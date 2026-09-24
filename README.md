@@ -17,3 +17,7 @@ Keep the original `Rijaal database data raw.zip` unchanged outside Git. Generate
 ## Next sprint
 
 Review identity candidates against the full V1/V1.1 corpus with source quotations and page offsets. Record proposed links and decisions without changing source text, silently merging people, or treating an absent teacher/student mention as a proven chain break. Integrate reviewed records with Shamela Reader v0.5.5 after the review layer is validated.
+
+The first [identity review queue](rijal_database/review_tools/README.md) is
+available: it proposes 1,249 chronology groups containing 2,647 source
+entries for pairwise human review. No identities have been merged.
