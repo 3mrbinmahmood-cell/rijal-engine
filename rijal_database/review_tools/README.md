@@ -142,3 +142,15 @@ interpret every date phrase. Editorial footnotes outside a biography segment
 need separate review evidence; they cannot be silently added as a biography
 claim. Very broad buckets such as 0–999 AH are mechanical groupings, not useful
 historical estimates.
+
+### Bulk identity candidate queue
+
+Run `python -m rijal_database.review_tools.bulk_candidates
+name_inventory.sqlite rijal_database/extraction.sqlite candidates.sqlite` to
+rank exact-name pairs sharing long (at least 60 characters) verbatim statement
+text. Two or more shared statements receive `strong_literal` priority. The
+output retains each quotation, extracted date relation, and any existing pair
+decision. It assigns no reviewed person ID and makes no merge. The exact-name
+inventory covers 74,081 biography entries; missing shared text is not a
+different-person decision. Teachers, students, and regions can be incomplete
+or vary between books, so nonoverlapping lists alone cannot split identities.
