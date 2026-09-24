@@ -180,3 +180,16 @@ link pairs that share one long verbatim statement **and** qualify for
 `both_lists_3plus`. The links remain provisional. An existing `different` or
 `uncertain` review blocks them, and a transitive conflict with a reviewed
 `different` decision aborts the build.
+
+### Full extraction name coverage
+
+Run `python -m rijal_database.review_tools.full_name_index
+rijal_database/extraction.sqlite full_name_index.sqlite` to index **all** V1.1
+extraction entries, including short names, entries appearing in only one book,
+cross-references, and short indexes. It creates stable `name-...` bucket IDs,
+retains each entry's source and classification, and records the V1.1 release
+checksum. In the current release this covers 664,308 entries in 412,280 name
+buckets. A bucket is a search/review convenience, **not** a unique person;
+index and cross-reference candidates especially should not become people
+automatically. The earlier 74,081-entry inventory remains the conservative
+multi-book review subset.
