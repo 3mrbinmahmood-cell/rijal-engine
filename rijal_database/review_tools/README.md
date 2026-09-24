@@ -174,3 +174,9 @@ source page. `both_lists_3plus` requires at least one overlap in each direction
 and at least three names total. This is a **heuristic review queue**: it can
 capture incidental mentions or miss names with variant spelling. It makes no
 identity links; absent overlap is not evidence of separate people.
+
+Pass `--relationships relationships.sqlite` to `provisional_identity` to also
+link pairs that share one long verbatim statement **and** qualify for
+`both_lists_3plus`. The links remain provisional. An existing `different` or
+`uncertain` review blocks them, and a transitive conflict with a reviewed
+`different` decision aborts the build.
