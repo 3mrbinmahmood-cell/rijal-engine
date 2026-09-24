@@ -54,6 +54,29 @@ shows an already recorded pairwise review decision, if present. Shared
 wording may have been copied between books; absent overlap does not imply
 different people. No comparison signal is an automatic identity decision.
 
+## Reviewed person ID and evidence fingerprint
+
+```bash
+python -m rijal_database.review_tools.person_registry create person_registry.sqlite name_inventory.sqlite rijal_database/rijal.sqlite rijal_database/extraction.sqlite ENTRY_A ENTRY_B --name "REVIEWED_NAME" --reviewer "REVIEWER" --reason "Source-backed rationale"
+python -m rijal_database.review_tools.person_registry show person_registry.sqlite PERSON_ID
+python -m rijal_database.review_tools.person_registry audit person_registry.sqlite name_inventory.sqlite
+```
+
+`create` requires a current explicit `same` decision for the selected pair.
+`add` requires `same` decisions against **every** existing member of that
+person record. A `different`, `uncertain`, or absent decision blocks it.
+The minted UUID is a stable person ID. A SHA-256 evidence fingerprint records
+the linked entry IDs, exact names, source checksums, extracted death evidence,
+and literal alias, family, teacher and student cues. It changes when approved
+evidence is added; it is not itself a semantic identity test or a guaranteed
+unique description of a human being.
+
+The registry is a separate SQLite file. Back it up with the review decision
+file. If a decision changes later, `audit` marks the affected person
+`needs_review`; it never silently splits or merges records. **No real corpus
+person ID has been minted yet**, because no real pair has an approved
+`same` decision.
+
 The first full build yielded **1,249 groups and 2,647 entry candidates**.
 Of those entries, V1.1 classified 2,539 as biography candidates, 99 as short
 index candidates, and 9 as cross references. No pairwise decisions or person

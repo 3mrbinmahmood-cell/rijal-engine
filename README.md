@@ -34,3 +34,6 @@ JSON for a selected group.
 The [pair comparison](rijal_database/review_tools/README.md) adds dated
 evidence and literal statement overlap for two selected entries without
 assigning an identity.
+The reviewed [person registry](rijal_database/review_tools/README.md) can mint
+a stable UUID and a reproducible evidence fingerprint after explicit
+same-person review. No real corpus person IDs have been approved yet.
