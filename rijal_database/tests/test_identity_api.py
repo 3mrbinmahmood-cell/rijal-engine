@@ -59,16 +59,33 @@ class IdentityApiTest(unittest.TestCase):
                 db.executescript('''CREATE TABLE name_mentions(id TEXT,name TEXT,
                   resolution_status TEXT);
                   CREATE TABLE neighbors(identity_id TEXT,relation TEXT,
-                  mention_id TEXT,source_entries INTEGER,supporting_pairs INTEGER);''')
+                  mention_id TEXT,source_entries INTEGER,supporting_pairs INTEGER);
+                  CREATE TABLE observations(identity_id TEXT,entry_id TEXT,
+                  paired_entry_id TEXT,relation TEXT,mention_id TEXT,
+                  page_id TEXT,review_priority TEXT);''')
                 db.execute('INSERT INTO name_mentions VALUES (?,?,?)',
                            ('mention','Teacher Name','unresolved_name'))
                 db.execute('INSERT INTO neighbors VALUES (?,?,?,?,?)',
                            ('person','teacher','mention',2,3))
+                db.execute('INSERT INTO neighbors VALUES (?,?,?,?,?)',
+                           ('cluster','teacher','mention',1,1))
+                db.execute('INSERT INTO observations VALUES (?,?,?,?,?,?,?)',
+                           ('person','a','b','teacher','mention','page','both_lists_3plus'))
             api.graph_path=graph
             self.assertEqual(api.identity_graph('a','teacher')['results'][0]['name'],
                              'Teacher Name')
-            self.assertEqual(api.identity_graph('b','teacher')['results'],[])
+            self.assertEqual(api.identity_graph('b','teacher')['results'][0]['name'],
+                             'Teacher Name')
+            self.assertEqual(api.graph_evidence('a','teacher','mention')['results'][0]
+                             ['page_id'],'page')
+            self.assertEqual(api.graph_evidence('b','teacher','mention')['results'],[])
+            related=api.graph_mention('mention','teacher')['results']
+            self.assertEqual([r['identity_id'] for r in related],['person','cluster'])
+            self.assertEqual(related[1]['identity_kind'],'provisional_cluster')
+            self.assertEqual(api.graph_mention('mention')['status'],
+                             'shared_name_does_not_prove_same_person')
             with self.assertRaises(ValueError):api.identity_graph('a','unknown')
+            with self.assertRaises(KeyError):api.graph_mention('missing')
 
 
 if __name__=='__main__':unittest.main()

@@ -44,3 +44,21 @@ Page search groups only identical extracted page text. Each result includes a re
 `entries.status=automatic_candidate` and `mentions.status=unresolved_mention` are intentional. A relationship mention can quote another speaker, appear in a footnote, or concern another person. `entry_id` on a mention is an unverified same-page contextual suggestion. The `persons`, `aliases`, `assertions`, `identity_links`, and `review_log` tables are reserved for evidence-based review. They do not contain automatically invented identities or judgments.
 
 The old reader's three-book experiment remains independent. This adapter does not replace its synchronous `ShamelaRijal.search` with a network call or feed unreviewed corpus candidates into its existing isnad decisions. New reader development should explicitly adopt the asynchronous API and display source-backed uncertainty.
+
+## Optional extraction inspector (port 8766)
+
+The separate `extraction_server.py` can load `--identity`, `--dates`, and
+`--graph` SQLite files. These endpoints are read-only and are not yet the
+reader's port-8765 API:
+
+| Endpoint | Meaning |
+|---|---|
+| `/api/identity/entry/<entry_id>` | Current reviewed/provisional/unlinked identity and original source fields. |
+| `/api/identity/members/<identity_id>` | Paginated source entries in that identity. |
+| `/api/identity/dates/<entry_id>` | Every available death-year claim with source quote and decimal grouping. |
+| `/api/identity/graph/<entry_id>?relation=teacher\|student` | Paginated unresolved name mentions for the entry's current identity. Includes `mention_id`. |
+| `/api/graph/evidence/<entry_id>?relation=teacher\|student&mention=<mention_id>` | Paginated biography entry IDs and opening page IDs supporting that graph edge. |
+| `/api/graph/mention/<mention_id>?relation=teacher\|student` | Paginated identities mentioning the same name. Shared spelling does not prove a shared person. |
+
+All graph names are heuristic and unresolved. Source page IDs support manual
+verification; they are not exact quotation offsets for relationship phrases.

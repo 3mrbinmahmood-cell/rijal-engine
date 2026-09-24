@@ -59,7 +59,7 @@ class Extraction:
         if relation and relation not in ('teacher','student'):
             raise ValueError('Unknown graph relation')
         limit=max(1,min(100,int(limit)));offset=max(0,int(offset))
-        sql='''SELECT n.relation,m.name,m.resolution_status,n.source_entries,
+        sql='''SELECT n.relation,m.id AS mention_id,m.name,m.resolution_status,n.source_entries,
             n.supporting_pairs FROM neighbors n JOIN name_mentions m
             ON m.id=n.mention_id WHERE n.identity_id=?'''
         params=[identity['identity_id']]
@@ -73,6 +73,51 @@ class Extraction:
         return {'identity_id':identity['identity_id'],'results':rows[:limit],
                 'has_more':len(rows)>limit,'limit':limit,'offset':offset,
                 'status':'heuristic_unresolved_names'}
+    def graph_evidence(self,entry_id,relation,mention_id,limit=30,offset=0):
+        identity=self.identity_entry(entry_id)
+        if not self.graph_path:raise KeyError('Relationship graph is not installed')
+        if relation not in ('teacher','student'):raise ValueError('Unknown graph relation')
+        limit=max(1,min(100,int(limit)));offset=max(0,int(offset))
+        with closing(sqlite3.connect(self.graph_path.resolve().as_uri()+'?mode=ro',
+                                     uri=True)) as c:
+            c.row_factory=sqlite3.Row
+            mention=c.execute('SELECT id,name,resolution_status FROM name_mentions WHERE id=?',
+                              (mention_id,)).fetchone()
+            if not mention:raise KeyError('Name mention not found')
+            rows=[dict(r) for r in c.execute('''SELECT entry_id,paired_entry_id,
+                page_id,review_priority FROM observations WHERE identity_id=?
+                AND relation=? AND mention_id=? ORDER BY entry_id,paired_entry_id
+                LIMIT ? OFFSET ?''',(identity['identity_id'],relation,mention_id,
+                                      limit+1,offset))]
+        return {'identity_id':identity['identity_id'],'mention':dict(mention),
+                'relation':relation,'results':rows[:limit],
+                'has_more':len(rows)>limit,'limit':limit,'offset':offset}
+    def graph_mention(self,mention_id,relation='',limit=30,offset=0):
+        if not self.graph_path:raise KeyError('Relationship graph is not installed')
+        if relation and relation not in ('teacher','student'):
+            raise ValueError('Unknown graph relation')
+        limit=max(1,min(100,int(limit)));offset=max(0,int(offset))
+        with closing(sqlite3.connect(self.graph_path.resolve().as_uri()+'?mode=ro',
+                                     uri=True)) as c:
+            c.row_factory=sqlite3.Row
+            mention=c.execute('SELECT * FROM name_mentions WHERE id=?',
+                              (mention_id,)).fetchone()
+            if not mention:raise KeyError('Name mention not found')
+            sql='''SELECT identity_id,relation,source_entries,supporting_pairs
+                FROM neighbors WHERE mention_id=?'''
+            params=[mention_id]
+            if relation:sql+=' AND relation=?';params.append(relation)
+            sql+=' ORDER BY source_entries DESC,supporting_pairs DESC,identity_id LIMIT ? OFFSET ?'
+            params.extend((limit+1,offset))
+            rows=[dict(r) for r in c.execute(sql,params)]
+        with closing(self.identity_con()) as c:
+            for row in rows[:limit]:
+                found=c.execute('SELECT kind,display_name FROM identities WHERE id=?',
+                                (row['identity_id'],)).fetchone()
+                if found:row.update(identity_kind=found['kind'],display_name=found['display_name'])
+        return {'mention':dict(mention),'results':rows[:limit],
+                'has_more':len(rows)>limit,'limit':limit,'offset':offset,
+                'status':'shared_name_does_not_prove_same_person'}
     def stats(self):
         with closing(self.con()) as c:return {'summary':json.loads(c.execute("SELECT value FROM metadata WHERE key='summary'").fetchone()[0]),'method':c.execute("SELECT value FROM metadata WHERE key='method'").fetchone()[0],'read_only':True}
     def citation(self,c,pid):return dict(c.execute('SELECT * FROM citations WHERE page_id=?',(pid,)).fetchone())
@@ -136,6 +181,8 @@ class Handler(BaseHTTPRequestHandler):
             if u.path.startswith('/api/identity/members/'):return self.reply(db.identity_members(u.path.rsplit('/',1)[-1],arg('limit',30),arg('offset',0)))
             if u.path.startswith('/api/identity/dates/'):return self.reply(db.identity_dates(u.path.rsplit('/',1)[-1]))
             if u.path.startswith('/api/identity/graph/'):return self.reply(db.identity_graph(u.path.rsplit('/',1)[-1],arg('relation'),arg('limit',30),arg('offset',0)))
+            if u.path.startswith('/api/graph/evidence/'):return self.reply(db.graph_evidence(u.path.rsplit('/',1)[-1],arg('relation'),arg('mention'),arg('limit',30),arg('offset',0)))
+            if u.path.startswith('/api/graph/mention/'):return self.reply(db.graph_mention(u.path.rsplit('/',1)[-1],arg('relation'),arg('limit',30),arg('offset',0)))
             if u.path.startswith('/api/page/'):return self.reply(db.sources.page(u.path.rsplit('/',1)[-1]))
             files={'/':'index.html','/app.js':'app.js','/style.css':'style.css'}
             if u.path in files:
