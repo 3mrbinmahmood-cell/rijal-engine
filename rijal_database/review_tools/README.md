@@ -30,3 +30,17 @@ Of those entries, V1.1 classified 2,539 as biography candidates, 99 as short
 index candidates, and 9 as cross references. No pairwise decisions or person
 merges were made. This queue only covers entries with matching extracted death
 years; entries without dates and differing names need later review methods.
+
+## Broader name inventory
+
+```bash
+python -m rijal_database.review_tools.name_inventory rijal_database/extraction.sqlite name_inventory.sqlite
+```
+
+The full V1.1 scan yielded **25,424 longer exact-name groups containing
+74,081 biography candidates** from at least two books. This lower-confidence
+inventory requires at least five words, 25 characters, and 2–8 occurrences
+per normalized name. It can include homonyms, repeated editions, and entries
+already in the chronology queue. It has no approval or merge operation.
+Reviewers should compare source text, patronymics, teachers, students, places
+and conflicting dates before promoting any pair for a decision.
