@@ -248,3 +248,13 @@ generated SQLite lookup beside the V1 and V1.1 databases and run
 unified_identity_view.sqlite` from the repository root. The biography panel
 shows reviewed/provisional/unlinked status and lets readers list linked source
 entries. The existing launch script still works without this optional file.
+
+Run `python -m rijal_database.review_tools.identity_gap_queue
+full_name_index.sqlite unified_identity_view.sqlite identity_gap_queue.sqlite`
+to list every repeated-name bucket that still has multiple identities.
+`gaps` prioritizes longer names present in multiple books and records how
+many entries are reviewed, provisionally linked, or unlinked. It performs no
+merges: a shared name or kunya can describe different contemporaries. Inspect
+the original biographies, teachers, students, region, and dates before a
+review decision. The index and identity databases remain the source for each
+bucket's individual entries and citations.
