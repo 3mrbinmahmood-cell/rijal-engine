@@ -44,10 +44,10 @@ def claims(detail):
             key=(status,origin)
             if key in seen:continue
             seen.add(key)
-            out.append({'status':status,'origin':origin,'quote':text[begin:end].strip()})
+            out.append({'status':status,'origin':origin,'scope':'الإسناد' if 'اسناد' in m.group(0) else 'الحديث','quote':text[begin:end].strip()})
     if not out:return None
     statuses={x['status'] for x in out}
-    overall='conflict' if 'weak' in statuses and len(statuses)>1 else 'weak' if 'weak' in statuses else 'sahih' if 'sahih' in statuses else 'hasan'
+    overall='review' if 'weak' in statuses and len(statuses)>1 else 'weak' if 'weak' in statuses else 'sahih' if 'sahih' in statuses else 'hasan'
     return {'number':numbers[0],'status':overall,'claims':out}
 
 def annotate(reader,source,output):
@@ -62,7 +62,7 @@ def annotate(reader,source,output):
         for book in books:
             files=groups.get(book['title'])
             if not files or book['title'] in ('صحيح البخاري - ت البغا','صحيح مسلم - ت عبد الباقي','الصحيح المسند مما ليس في الصحيحين'):continue
-            index=0;counts={'weak':0,'sahih':0,'hasan':0,'conflict':0}
+            index=0;counts={'weak':0,'sahih':0,'hasan':0,'review':0}
             for n in sorted(files):
                 elements,*_=parse_source(archive.read(n))
                 for el in elements:
@@ -77,6 +77,7 @@ def annotate(reader,source,output):
         with ZipFile(output,'w',ZIP_DEFLATED,compresslevel=6) as new:
             for member in old.infolist():
                 if member.is_dir():new.writestr(member,b'');continue
+                if member.filename=='GRADE_ANNOTATION_AUDIT.json':continue
                 new.writestr(member,data if member.filename=='data.js' else old.read(member.filename))
             new.writestr('GRADE_ANNOTATION_AUDIT.json',json.dumps(audit,ensure_ascii=False,indent=2).encode())
     return audit

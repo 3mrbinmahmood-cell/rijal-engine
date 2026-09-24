@@ -12,7 +12,7 @@ def test(source_zip,reader_zip):
         details=[extract_page(e) for e in parse_source(z.read(n))[0]]
         sample=next(d for d in details if '551 -' in d['text'])
         grade=claims(sample)
-        assert grade['number']=='551' and grade['status']=='conflict'
+        assert grade['number']=='551' and grade['status']=='review'
         assert {(c['origin'],c['status']) for c in grade['claims']}=={('نص الكتاب','hasan'),('حاشية','weak')}
     with ZipFile(reader_zip) as z:
         books=json.loads(z.read('data.js').decode().removeprefix('window.SHAMELA_DATA=').rstrip(';'))
